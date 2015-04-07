@@ -12,8 +12,12 @@ find_package(Pqxx REQUIRED)
 #include_directories(${Pqxx_INCLUDE_DIRS})
 #message(${Pqxx_INCLUDE_DIRS})
 
+include_directories(include)
+
 add_executable(pqxx_example src/pqxx_example.cpp)
 target_link_libraries(pqxx_example ${Pqxx_LIBRARIES})
+
+add_library(trie src/trie.cpp)
 
 #########
 # Tests #
@@ -22,6 +26,5 @@ enable_testing()
 add_subdirectory(gmock-1.7.0)
 include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR}/gtest/include)
 
-set(test_sources test/example_test.cpp)
-add_executable(sample_tests ${test_sources})
-target_link_libraries(sample_tests pthread gmock)
+add_executable(trie_tests test/trie_tests.cpp)
+target_link_libraries(trie_tests pthread gmock trie)
