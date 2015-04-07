@@ -7,31 +7,22 @@ using namespace EECS405;
 TEST(TrieNode, ConstructNodeDefaultArgs) {
     Trie::Node n;
 
-    ASSERT_EQ(0, n.frequency());
-    ASSERT_EQ(nullptr, n.GetParent());
+    EXPECT_EQ(0, n.frequency());
+    EXPECT_FALSE(n.IsLeaf());
 }
 
-TEST(TrieNode, ConstructNodeSpecifyFreq) {
+TEST(TrieNode, ConstructFrequency) {
     Trie::Node n(10);
 
-    ASSERT_EQ(10, n.frequency());
-    ASSERT_EQ(nullptr, n.GetParent());
+    EXPECT_EQ(10, n.frequency());
+    EXPECT_FALSE(n.IsLeaf());
 }
 
-TEST(TrieNode, ConstructNodeSpecifyParent) {
-    std::shared_ptr<Trie::Node> parent(new Trie::Node());
-    Trie::Node child(parent);
+TEST(TrieNode, ConstructFull) {
+    Trie::Node n(10, true);
 
-    EXPECT_EQ(parent, child.GetParent());
-    EXPECT_EQ(0, child.frequency());
-}
-
-TEST(TrieNode, FullConstructor) {
-    std::shared_ptr<Trie::Node> parent(new Trie::Node());
-    Trie::Node child(parent, 10);
-
-    EXPECT_EQ(parent, child.GetParent());
-    EXPECT_EQ(10, child.frequency());
+    EXPECT_EQ(10, n.frequency());
+    EXPECT_TRUE(n.IsLeaf());
 }
 
 TEST(TrieNode, ConstructNodeFreqBelow0) {
@@ -84,12 +75,58 @@ TEST(TrieNode, GetChild) {
     ASSERT_EQ(0, n.num_children());
 
     std::shared_ptr<Trie::Node> childA = n.AddChild('a', 10);
-    ASSERT_EQ(&n, childA->GetParent().get());
-    ASSERT_EQ(10, n.frequency());
+    ASSERT_EQ(10, childA->frequency());
     ASSERT_EQ(1, n.num_children());
 
     std::shared_ptr<Trie::Node> retrievedChild = n.GetChild('a');
     ASSERT_EQ(childA, retrievedChild);
+}
+
+TEST(TrieNode, RemoveChild) {
+    Trie::Node n;
+
+    ASSERT_EQ(0, n.num_children());
+    n.AddChild('a');
+    ASSERT_EQ(1, n.num_children());
+    ASSERT_NE(nullptr, n.GetChild('a'));
+
+    n.RemoveChild('a');
+    ASSERT_EQ(0, n.num_children());
+    ASSERT_EQ(nullptr, n.GetChild('a'));
+}
+
+TEST(TrieNode, LeafExists) {
+    Trie::Node n;
+
+    ASSERT_FALSE(n.LeafExists());
+    n.CreateLeaf();
+    ASSERT_EQ(0, n.num_children());
+    ASSERT_TRUE(n.LeafExists());
+}
+
+TEST(TrieNode, GetLeaf) {
+    Trie::Node n;
+
+    ASSERT_FALSE(n.LeafExists());
+    EXPECT_EQ(nullptr, n.GetLeaf());
+    n.CreateLeaf();
+    EXPECT_NE(nullptr, n.GetLeaf());
+}
+
+TEST(TrieNode, CreateLeaf) {
+    Trie::Node n;
+
+    ASSERT_FALSE(n.LeafExists());
+    std::shared_ptr<Trie::Node> leaf = n.CreateLeaf(10);
+    ASSERT_EQ(0, n.num_children());
+    ASSERT_NE(nullptr, leaf);
+    ASSERT_EQ(10, leaf->frequency());
+}
+
+TEST(TrieNode, AddChildFailsForLeaf) {
+    Trie::Node n(10, true);
+    ASSERT_TRUE(n.IsLeaf());
+    ASSERT_THROW(n.AddChild('a'), std::runtime_error);
 }
 
 int main(int argc, char** argv) {

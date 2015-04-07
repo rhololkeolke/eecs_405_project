@@ -8,13 +8,15 @@
 namespace EECS405 {
     namespace Trie {
 
-        Node::Node(std::shared_ptr<Node> parent, int f) {
-            if(f < 0) {
+        Node::Node(int freq, bool is_leaf) : is_leaf_(is_leaf) {
+            if(freq < 0) {
                 throw std::invalid_argument("You cannot set frequency less than 0");
             }
-            frequency_ = f;
+            frequency_ = freq;
+        }
 
-            parent_ = parent;
+        bool Node::IsLeaf() const {
+            return is_leaf_;
         }
 
         int Node::frequency() const {
@@ -33,23 +35,31 @@ namespace EECS405 {
         }
 
         std::shared_ptr<Node> Node::GetChild(char child_key) {
-            // TODO
-            return std::shared_ptr<Node>();
+            ChildMap::const_iterator child;
+            if((child = children_.find(child_key)) != children_.end()) {
+                return child->second;
+            }
+            return nullptr;
         }
 
         void Node::RemoveChild(char child_key) {
-            // TODO
+            ChildMap::iterator child;
+            if((child = children_.find(child_key)) != children_.end()) {
+                children_.erase(child);
+            }
         }
 
         std::shared_ptr<Node> Node::AddChild(char child_key, int freq) {
-            // TODO
+            if (is_leaf_) {
+                throw std::runtime_error("Cannot add children to leaf nodes");
+            }
 
-            std::unordered_map<char, std::shared_ptr<Node> >::iterator child;
+            ChildMap::iterator child;
             if((child = children_.find(child_key)) != children_.end()) {
                 return child->second;
             }
 
-            std::shared_ptr<Node> new_child(new Node(std::shared_ptr<Node>(this), freq));
+            std::shared_ptr<Node> new_child(new Node(freq, false));
             children_[child_key] = new_child;
 
             return new_child;
@@ -59,8 +69,20 @@ namespace EECS405 {
             return children_.size();
         }
 
-        std::shared_ptr<Node> Node::GetParent() {
-            return parent_.lock();
+        bool Node::LeafExists() {
+            return leaf_.get() != nullptr;
+        }
+
+        std::shared_ptr<Node> Node::CreateLeaf(int freq) {
+            if (leaf_ != nullptr) {
+                throw std::logic_error("Leaf already exists!");
+            }
+            leaf_ = std::shared_ptr<Node>(new Node(freq, true));
+            return leaf_;
+        }
+
+        std::shared_ptr<Node> Node::GetLeaf() {
+            return leaf_;
         }
     }
 }

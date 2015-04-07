@@ -12,34 +12,47 @@ namespace EECS405 {
 
     namespace Trie {
 
+        class Trie;
+
         class Node {
+            friend class Trie;
         public:
-            Node() : Node(std::shared_ptr<Node>(), 0){};
-            Node(int f) : Node(std::shared_ptr<Node>(), f) {};
-            Node(std::shared_ptr<Node> parent) : Node(parent, 0) {};
-            Node(std::shared_ptr<Node> parent, int f);
+            typedef std::unordered_map<char, std::shared_ptr<Node> > ChildMap;
+
+            Node(int freq=0, bool is_leaf=false);
+
+            bool IsLeaf() const;
 
             int frequency() const;
-
             void set_frequency(int f);
-
             void increment_frequency();
+
+            bool LeafExists();
+            std::shared_ptr<Node> GetLeaf();
+            std::shared_ptr<Node> CreateLeaf(int freq=0);
+
 
             std::shared_ptr<Node> GetChild(char child_key);
             void RemoveChild(char child_key);
-            std::shared_ptr<Node> AddChild(char child_key, int freq = 0);
+            std::shared_ptr<Node> AddChild(char child_key, int freq=0);
             unsigned long num_children();
+        private:
+            int frequency_;
 
-            std::shared_ptr<Node> GetParent();
+            const bool is_leaf_;
+            std::shared_ptr<Node> leaf_;
 
-        protected:
+            ChildMap children_;
+        };
+
+        class Trie {
+        public:
+            Trie() {
+
+            }
 
         private:
 
-            int frequency_;
-
-            std::unordered_map<char, std::shared_ptr<Node> > children_;
-            std::weak_ptr<Node> parent_;
         };
     }
 }
