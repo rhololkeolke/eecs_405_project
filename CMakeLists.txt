@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(eecs_405_project)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -18,9 +18,10 @@ target_link_libraries(pqxx_example ${Pqxx_LIBRARIES})
 #########
 # Tests #
 #########
-add_subdirectory(gtest-1.7.0)
-include_directories(${gtest_SOURCE_DIR}/include)
+enable_testing()
+add_subdirectory(gmock-1.7.0)
+include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR}/gtest/include)
 
 set(test_sources test/example_test.cpp)
 add_executable(sample_tests ${test_sources})
-target_link_libraries(sample_tests gtest_main)
+target_link_libraries(sample_tests pthread gmock)
