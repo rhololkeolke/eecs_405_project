@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 /**
  * Created by Devin on 4/8/15.
  */
-public class TrieNodeNonLeafTest {
+public class TrieNodeTest {
 
     TrieNode node;
 
