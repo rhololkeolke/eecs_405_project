@@ -1,35 +1,33 @@
-#######
-# C++ #
-#######
+##########
+# Gradle #
+##########
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+.gradle
+build/
 
-# Precompiled Headers
-*.gch
-*.pch
+# Ignore Gradle GUI config
+gradle-app.setting
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
-# Fortran module files
-*.mod
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+########
+# Java #
+########
 
-# Executables
-*.exe
-*.out
-*.app
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
 
 #############
 # JetBrains #
