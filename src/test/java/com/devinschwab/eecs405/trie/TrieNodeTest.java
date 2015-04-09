@@ -18,8 +18,8 @@ public class TrieNodeTest {
     public void setUp() throws Exception {
         node = new TrieNode();
         assertEquals(0, node.frequency);
-        assertFalse(node.isWord);
-        assertEquals(0, node.wordFrequency);
+        assertFalse(node.isQGram);
+        assertEquals(0, node.qgramFrequency);
     }
 
     @Test

@@ -9,15 +9,15 @@ import java.util.Map;
 public class TrieNode {
 
     public int frequency;
-    public boolean isWord;
-    public int wordFrequency;
+    public boolean isQGram;
+    public int qgramFrequency;
 
     private Map<Character, TrieNode> children;
 
     public TrieNode() {
         children = new HashMap<>();
-        isWord = false;
-        wordFrequency = 0;
+        isQGram = false;
+        qgramFrequency = 0;
     }
 
     public TrieNode getChild(char childKey) {
@@ -43,5 +43,10 @@ public class TrieNode {
 
     public int getNumChildren() {
         return children.size();
+    }
+
+    @Override
+    public String toString() {
+        return "TrieNode(freq=" + frequency + ",isQGram=" + isQGram + ",wordFreq=" + qgramFrequency + ")";
     }
 }
