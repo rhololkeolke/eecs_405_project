@@ -78,6 +78,29 @@ public class GramDictionary {
         }
     }
 
+    public List<QGram> generateVGrams(String s) {
+        List<QGram> vgrams = new LinkedList<>();
+        for(int p=0; p<s.length() - getQMin(); p++) {
+            String longestQGram = dictionaryTrie.getLongestQGram(s.substring(p, Math.min(s.length(), p+getQMax())));
+            if (longestQGram == null) {
+                longestQGram = s.substring(p, p+getQMin());
+            }
+            QGram gram = new QGram(p, longestQGram);
+            // this could be made more efficient, but its a good first pass
+            boolean isSubsumed = false;
+            for(QGram vgram : vgrams) {
+                if(vgram.subsumes(gram)) {
+                    isSubsumed = true;
+                    break;
+                }
+            }
+            if(!isSubsumed) {
+                vgrams.add(gram);
+            }
+        }
+        return vgrams;
+    }
+
     public int getQMin() {
         return dictionaryTrie.qmin;
     }

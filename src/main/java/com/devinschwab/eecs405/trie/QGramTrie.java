@@ -229,6 +229,21 @@ public class QGramTrie {
         return words;
     }
 
+    public String getLongestQGram(String string) {
+        TrieNode currNode = root;
+        int i = 0;
+        for(Character c : string.toCharArray()) {
+            currNode = currNode.getChild(c);
+            if(currNode == null)
+                break;
+            i++;
+        }
+        if(i >= qmin) {
+            return string.substring(0, i);
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

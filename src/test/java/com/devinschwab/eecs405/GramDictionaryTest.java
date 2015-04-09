@@ -5,6 +5,8 @@ import com.devinschwab.eecs405.trie.TrieNode;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -16,6 +18,7 @@ public class GramDictionaryTest {
     QGramTrie expectedUnprunedTrie;
     QGramTrie expectedPrunedTrie;
     QGramTrie expectedInverseTrie;
+    QGramTrie vgramTrie;
 
     @Before
     public void setUp() throws Exception {
@@ -202,6 +205,13 @@ public class GramDictionaryTest {
         currNode.frequency = 1;
         currNode.isQGram = true;
         currNode.qgramFrequency = 1;
+
+        vgramTrie = new QGramTrie(2, 4);
+        vgramTrie.insert("ni");
+        vgramTrie.insert("ivr");
+        vgramTrie.insert("sal");
+        vgramTrie.insert("uni");
+        vgramTrie.insert("vers");
     }
 
     @Test
@@ -230,5 +240,17 @@ public class GramDictionaryTest {
     @Test
     public void testGetQMax() throws Exception {
         assertEquals(3, gramDict.getQMax());
+    }
+
+    @Test
+    public void testGenerateVGrams() throws Exception {
+        gramDict = new GramDictionary(2, 4);
+        gramDict.dictionaryTrie = vgramTrie;
+        List<QGram> vgrams = gramDict.generateVGrams("universal");
+        assertEquals(4, vgrams.size());
+        assertEquals(new QGram(0, "uni"), vgrams.get(0));
+        assertEquals(new QGram(2, "iv"), vgrams.get(1));
+        assertEquals(new QGram(3, "vers"), vgrams.get(2));
+        assertEquals(new QGram(6, "sal"), vgrams.get(3));
     }
 }

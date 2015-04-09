@@ -30,6 +30,14 @@ public class QGram {
         return gram.length();
     }
 
+    public boolean subsumes(QGram qgram) {
+        if(qgram.position < position)
+            return false;
+        if(qgram.position+qgram.size() > position + size())
+            return false;
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

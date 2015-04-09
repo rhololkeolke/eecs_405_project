@@ -209,6 +209,22 @@ public class QGramTrieTest {
     }
 
     @Test
+    public void testGetLongestQGram() throws Exception {
+        trie = new QGramTrie(2, 4);
+        trie.insert("ni");
+        trie.insert("sal");
+        trie.insert("uni");
+        trie.insert("vers");
+
+        String longestQGram = trie.getLongestQGram("univ");
+        assertEquals("uni", longestQGram);
+        longestQGram = trie.getLongestQGram("nive");
+        assertEquals("ni", longestQGram);
+        longestQGram = trie.getLongestQGram("iver");
+        assertEquals(null, longestQGram);
+    }
+
+    @Test
     public void testTrieEquals() throws Exception {
         QGramTrie trie2 = new QGramTrie(trie.qmin, trie.qmax);
         assertTrue(trie.equals(trie2));

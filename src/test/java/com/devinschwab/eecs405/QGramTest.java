@@ -82,4 +82,19 @@ public class QGramTest {
         assertFalse(gram0A.equals(gram0B));
         assertFalse(gram0A.equals(gram1A));
     }
+
+    @Test
+    public void testIsSubsumed() throws Exception {
+        QGram gramA = new QGram(0, "univ");
+        QGram gramB = new QGram(0, "uni");
+        QGram gramC = new QGram(1, "niv");
+        QGram gramD = new QGram(1, "nive");
+        QGram gramE = new QGram(2, "ive");
+
+        assertTrue(gramA.subsumes(gramB));
+        assertTrue(gramA.subsumes(gramC));
+        assertFalse(gramA.subsumes(gramD));
+        assertFalse(gramA.subsumes(gramE));
+        assertFalse(gramC.subsumes(gramA));
+    }
 }
