@@ -15,6 +15,7 @@ public class GramDictionaryTest {
     GramDictionary gramDict;
     QGramTrie expectedUnprunedTrie;
     QGramTrie expectedPrunedTrie;
+    QGramTrie expectedInverseTrie;
 
     @Before
     public void setUp() throws Exception {
@@ -153,17 +154,72 @@ public class GramDictionaryTest {
         currNode.frequency = 2;
         currNode.isQGram = true;
         currNode.qgramFrequency = 2;
+
+        expectedInverseTrie = new QGramTrie(2, 3);
+        currNode = expectedInverseTrie.root;
+        currNode.frequency = 7;
+        currNode.addChild('i');
+        currNode.addChild('t');
+        currNode.addChild('u');
+        currNode.addChild('c');
+        currNode = currNode.getChild('i');
+        currNode.frequency = 2;
+        currNode = currNode.addChild('t');
+        currNode.frequency = 2;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = currNode.addChild('s');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = expectedInverseTrie.root.getChild('t');
+        currNode.frequency = 1;
+        currNode = currNode.addChild('s');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = expectedInverseTrie.root.getChild('u');
+        currNode.frequency = 2;
+        currNode.addChild('s');
+        currNode.addChild('t');
+        currNode = currNode.getChild('s');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = expectedInverseTrie.root.getChild('u').getChild('t');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = expectedInverseTrie.root.getChild('c');
+        currNode.frequency = 2;
+        currNode.addChild('i');
+        currNode.addChild('u');
+        currNode = currNode.getChild('i');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
+        currNode = expectedInverseTrie.root.getChild('c').getChild('u');
+        currNode.frequency = 1;
+        currNode.isQGram = true;
+        currNode.qgramFrequency = 1;
     }
 
     @Test
     public void testAddStringToFrequencyTrie() throws Exception {
-        assertTrue(expectedUnprunedTrie.equals(gramDict.freqTrie));
+        assertTrue(expectedUnprunedTrie.equals(gramDict.dictionaryTrie));
     }
 
     @Test
     public void testPrune() throws Exception {
         gramDict.prune(2);
-        assertTrue(expectedPrunedTrie.equals(gramDict.freqTrie));
+        assertTrue(expectedPrunedTrie.equals(gramDict.dictionaryTrie));
+    }
+
+    @Test
+    public void testGenerateInverseTrie() throws Exception {
+        gramDict.dictionaryTrie = expectedPrunedTrie;
+        gramDict.generateInverseTrie();
+        assertTrue(expectedInverseTrie.equals(gramDict.inverseTrie));
     }
 
     @Test

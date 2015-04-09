@@ -10,21 +10,23 @@ import java.util.*;
  */
 public class GramDictionary {
 
-    public QGramTrie freqTrie;
+    public QGramTrie dictionaryTrie;
+    public QGramTrie inverseTrie;
 
     public GramDictionary(int qmin, int qmax) {
-        freqTrie = new QGramTrie(qmin, qmax);
+        dictionaryTrie = new QGramTrie(qmin, qmax);
+        inverseTrie = new QGramTrie(qmin, qmax);
     }
 
     public void addStringToFrequencyTrie(String s) {
         List<QGram> qgrams = QGram.generateQGrams(getQMax(), s);
         for(QGram qgram : qgrams) {
-            freqTrie.insert(qgram);
+            dictionaryTrie.insert(qgram);
         }
     }
 
     public void prune(int threshold) {
-        prune(freqTrie.root, threshold);
+        prune(dictionaryTrie.root, threshold);
     }
 
     private void prune(TrieNode n, int threshold) {
@@ -68,12 +70,20 @@ public class GramDictionary {
         }
     }
 
+    public void generateInverseTrie() {
+        List<String> qgrams = dictionaryTrie.getExtendedQGrams("");
+        inverseTrie = new QGramTrie(getQMin(), getQMax());
+        for(String qgram : qgrams) {
+            inverseTrie.insert(new StringBuilder(qgram).reverse().toString());
+        }
+    }
+
     public int getQMin() {
-        return freqTrie.qmin;
+        return dictionaryTrie.qmin;
     }
 
     public int getQMax() {
-        return freqTrie.qmax;
+        return dictionaryTrie.qmax;
     }
 
     private List<Map.Entry<Character, TrieNode>> sortNodeSet(Collection<Map.Entry<Character, TrieNode>> c) {
