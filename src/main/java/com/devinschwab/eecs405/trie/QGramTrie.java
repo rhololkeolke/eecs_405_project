@@ -1,5 +1,7 @@
 package com.devinschwab.eecs405.trie;
 
+import com.devinschwab.eecs405.QGram;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ public class QGramTrie {
     /**
      * Construct a QGram Trie and fill it with all of the specified qgrams
      * and their prefix qgrams. The prefix qgrams have lengths from qmin to
-     * the length of the string being inserted.
+     * the lenght of the string being inserted.
      *
      * All qgrams must have lengths in range [qmin, qmax].
      *
@@ -37,11 +39,11 @@ public class QGramTrie {
      * @param qmax The maximum qgram size
      * @param qgrams The qgrams to insert
      */
-    public QGramTrie(int qmin, int qmax, List<String> qgrams) {
+    public QGramTrie(int qmin, int qmax, List<QGram> qgrams) {
         this(qmin, qmax);
 
-        for(String s : qgrams) {
-            this.insert(s);
+        for(QGram gram : qgrams) {
+            this.insert(gram.gram);
         }
     }
 
@@ -77,6 +79,15 @@ public class QGramTrie {
     }
 
     /**
+     * Insert the qgram and all prefixes of size qmin or greater.
+     *
+     * @param qgram The qgram to insert
+     */
+    public void insert(QGram qgram) {
+        insert(qgram.gram);
+    }
+
+    /**
      * Get the frequency of the q-gram.
      *
      * If the qgram is not in the Trie then this will return -1.
@@ -103,6 +114,20 @@ public class QGramTrie {
     }
 
     /**
+     * Get the frequency of the q-gram.
+     *
+     * If the qgram is not in the Trie then this will return -1.
+     *
+     * Please note that automatically added prefix q-grams default to a frequency of 0.
+     *
+     * @param qgram The qgram to lookup the frequency of
+     * @return The frequency of the qgram.
+     */
+    public int getFrequency(QGram qgram) {
+        return getFrequency(qgram.gram);
+    }
+
+    /**
      * Check if the qgram is in the Trie.
      *
      * @param qgram The qgram to check for
@@ -120,6 +145,16 @@ public class QGramTrie {
             }
         }
         return currNode.isQGram;
+    }
+
+    /**
+     * Check if the qgram is in the Trie.
+     *
+     * @param qgram The qgram to check for
+     * @return True if in the Trie, false otherwise
+     */
+    public boolean contains(QGram qgram) {
+        return contains(qgram.gram);
     }
 
     public int getNumQGrams() {
@@ -147,6 +182,18 @@ public class QGramTrie {
         }
 
         return getQGrams(currNode, prefix);
+    }
+
+    /**
+     * Get a list of this qgram and any qgrams this qgram is a prefix for.
+     *
+     * If the prefix is not a qgram in the trie then an empty list will be returned.
+     *
+     * @param prefix The prefix qgram to find extended qgrams for.
+     * @return The list of extended qgrams in the trie
+     */
+    public List<String> getExtendedQGrams(QGram prefix) {
+        return getExtendedQGrams(prefix.gram);
     }
 
     private List<String> getQGrams(TrieNode node, String prefix) {

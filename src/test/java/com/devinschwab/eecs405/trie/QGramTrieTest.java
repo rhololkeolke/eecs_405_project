@@ -1,5 +1,6 @@
 package com.devinschwab.eecs405.trie;
 
+import com.devinschwab.eecs405.QGram;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,27 +22,24 @@ public class QGramTrieTest {
     }
 
     @Test
-    public void testConstructWithList() throws Exception {
-        List<String> qgrams = new LinkedList<>();
-        qgrams.add("uni");
-        qgrams.add("niv");
-        qgrams.add("ive");
-        qgrams.add("ver");
-        qgrams.add("ers");
+    public void testConstructWithQGramList() throws Exception {
+        List<QGram> qgrams = new LinkedList<>();
+        qgrams.add(new QGram(0, "uni"));
+        qgrams.add(new QGram(1, "niv"));
 
         trie = new QGramTrie(2, 4, qgrams);
-        assertEquals(qgrams.size() * 2, trie.getNumQGrams());
-        for(String s : qgrams) {
-            assertTrue(trie.contains(s));
+        assertEquals(qgrams.size()*2, trie.getNumQGrams());
+        for(QGram qgram : qgrams) {
+            assertTrue(trie.contains(qgram));
         }
     }
 
     @Test
-    public void testConstructWithListDuplicates() throws Exception {
-        List<String> qgrams = new LinkedList<>();
-        qgrams.add("nive");
-        qgrams.add("nive");
-        qgrams.add("nive");
+    public void testConstructWithQGramListDuplicates() throws Exception {
+        List<QGram> qgrams = new LinkedList<>();
+        qgrams.add(new QGram(0, "nive"));
+        qgrams.add(new QGram(1, "nive"));
+        qgrams.add(new QGram(2, "nive"));
 
         trie = new QGramTrie(2, 4, qgrams);
         assertEquals(qgrams.size(), trie.getFrequency("nive"));
@@ -52,19 +50,19 @@ public class QGramTrieTest {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testConstructWithListOfTooLongStrings() throws Exception {
-        List<String> strings = new LinkedList<>();
-        strings.add("waytoolong");
-        strings.add("alsowaytoolong");
+    public void testConstructWithListOfTooLongQGrams() throws Exception {
+        List<QGram> strings = new LinkedList<>();
+        strings.add(new QGram(0, "waytoolong"));
+        strings.add(new QGram(1, "alsowaytoolong"));
 
         trie = new QGramTrie(2, 4, strings);
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testConstructWithListOfTooShortStrings() throws Exception {
-        List<String> strings = new LinkedList<>();
-        strings.add("I");
-        strings.add("a");
+    public void testConstructWithListOfTooShortQGrams() throws Exception {
+        List<QGram> strings = new LinkedList<>();
+        strings.add(new QGram(0, "I"));
+        strings.add(new QGram(0, "a"));
 
         trie = new QGramTrie(2, 4, strings);
     }
@@ -90,6 +88,26 @@ public class QGramTrieTest {
     }
 
     @Test
+    public void testInsertQGram() throws Exception {
+        assertFalse(trie.contains("nive"));
+        trie.insert(new QGram(0, "nive"));
+        assertTrue(trie.contains("nive"));
+        assertEquals(1, trie.getFrequency("nive"));
+        assertTrue(trie.contains("niv"));
+        assertTrue(trie.contains("ni"));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testInsertTooLongQGram() throws Exception {
+        trie.insert(new QGram(0, "waytoolong"));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testInsertTooShortQGram() throws Exception {
+        trie.insert(new QGram(0, "i"));
+    }
+
+    @Test
     public void testGetFrequencyExists() throws Exception {
         trie.insert("nive");
         assertEquals(1, trie.getFrequency("nive"));
@@ -107,12 +125,38 @@ public class QGramTrieTest {
     }
 
     @Test
+    public void testGetFrequencyExistsQGram() throws Exception {
+        trie.insert(new QGram(0, "nive"));
+        assertEquals(1, trie.getFrequency(new QGram(0, "nive")));
+        assertEquals(0, trie.getFrequency(new QGram(1, "niv")));
+        assertEquals(0, trie.getFrequency(new QGram(2, "ni")));
+        trie.insert(new QGram(1, "nive"));
+        assertEquals(2, trie.getFrequency(new QGram(0, "nive")));
+        assertEquals(0, trie.getFrequency(new QGram(1, "niv")));
+        assertEquals(0, trie.getFrequency(new QGram(2, "ni")));
+    }
+
+    @Test
+    public void testGetFrequencyNonExistantGram() throws Exception {
+        assertEquals(-1, trie.getFrequency(new QGram(1, "nive")));
+    }
+
+    @Test
     public void testContains() throws Exception {
         assertFalse(trie.contains("nive"));
         trie.insert("nive");
         assertTrue(trie.contains("nive"));
         assertTrue(trie.contains("niv"));
         assertTrue(trie.contains("ni"));
+    }
+
+    @Test
+    public void testContainsQGram() throws Exception {
+        assertFalse(trie.contains(new QGram(0, "nive")));
+        trie.insert(new QGram(1, "nive"));
+        assertTrue(trie.contains(new QGram(0, "nive")));
+        assertTrue(trie.contains(new QGram(2, "niv")));
+        assertTrue(trie.contains(new QGram(3, "ni")));
     }
 
     @Test
@@ -127,12 +171,26 @@ public class QGramTrieTest {
     }
 
     @Test
-    public void testGetWordsStartingWith() throws Exception {
+    public void testGetExtendedQGramStrings() throws Exception {
         List<String> words = trie.getExtendedQGrams("qu");
         assertNotNull(words);
         assertEquals(0, words.size());
         trie.insert("nive");
         words = trie.getExtendedQGrams("n");
+        assertNotNull(words);
+        assertEquals(3, words.size());
+        assertTrue(words.contains("nive"));
+        assertTrue(words.contains("niv"));
+        assertTrue(words.contains("ni"));
+    }
+
+    @Test
+    public void testGetExtendedQGrams() throws Exception {
+        List<String> words = trie.getExtendedQGrams(new QGram(0, "n"));
+        assertNotNull(words);
+        assertEquals(0, words.size());
+        trie.insert(new QGram(0, "nive"));
+        words = trie.getExtendedQGrams(new QGram(1, "n"));
         assertNotNull(words);
         assertEquals(3, words.size());
         assertTrue(words.contains("nive"));
