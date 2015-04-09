@@ -49,4 +49,33 @@ public class TrieNode {
     public String toString() {
         return "TrieNode(freq=" + frequency + ",isQGram=" + isQGram + ",wordFreq=" + qgramFrequency + ")";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TrieNode trieNode = (TrieNode) o;
+
+        if (frequency != trieNode.frequency) return false;
+        if (isQGram != trieNode.isQGram) return false;
+        if (children.size() != trieNode.children.size()) return false;
+        for(Character key : children.keySet()) {
+            if(trieNode.children.get(key) == null)
+                return false;
+        }
+        return qgramFrequency == trieNode.qgramFrequency;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = frequency;
+        result = 31 * result + (isQGram ? 1 : 0);
+        result = 31 * result + qgramFrequency;
+        for(Character key : children.keySet()) {
+            result = 31 * result + key.hashCode();
+        }
+        return result;
+    }
 }

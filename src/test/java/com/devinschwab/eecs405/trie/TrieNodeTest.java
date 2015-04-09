@@ -44,7 +44,7 @@ public class TrieNodeTest {
         assertEquals(2, node.getNumChildren());
         assertNotNull(childNodeB);
 
-        assertNotEquals(childNodeA, childNodeB);
+        assertNotEquals(System.identityHashCode(childNodeA), System.identityHashCode(childNodeB));
     }
 
     @Test
@@ -100,5 +100,63 @@ public class TrieNodeTest {
         assertEquals(2, children.size());
         assertTrue(children.containsKey('a'));
         assertTrue(children.containsKey('b'));
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        TrieNode node2 = new TrieNode();
+        assertTrue(node.equals(node2));
+
+        node2.frequency = 1;
+        assertFalse(node.equals(node2));
+        node2.frequency = node.frequency;
+        assertTrue(node.equals(node2));
+
+        node2.isQGram = !node2.isQGram;
+        assertFalse(node.equals(node2));
+        node2.isQGram = node.isQGram;
+        assertTrue(node.equals(node2));
+
+        node2.qgramFrequency = 10;
+        assertFalse(node.equals(node2));
+        node2.qgramFrequency = node.qgramFrequency;
+        assertTrue(node.equals(node2));
+
+        node2.addChild('a');
+        assertFalse(node.equals(node2));
+        node.addChild('a');
+        assertTrue(node.equals(node2));
+        node2.addChild('b');
+        node.addChild('c');
+        assertFalse(node.equals(node2));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        TrieNode node2 = new TrieNode();
+        assertEquals(node.hashCode(), node2.hashCode());
+
+        node2.frequency = 1;
+        assertNotEquals(node.hashCode(), node2.hashCode());
+        node2.frequency = node.frequency;
+        assertEquals(node.hashCode(), node2.hashCode());
+
+        node2.isQGram = !node2.isQGram;
+        assertNotEquals(node.hashCode(), node2.hashCode());
+        node2.isQGram = node.isQGram;
+        assertEquals(node.hashCode(), node2.hashCode());
+
+        node2.qgramFrequency = 10;
+        assertNotEquals(node.hashCode(), node2.hashCode());
+        node2.qgramFrequency = node.qgramFrequency;
+        assertEquals(node.hashCode(), node2.hashCode());
+
+        node2.addChild('a');
+        assertNotEquals(node.hashCode(), node2.hashCode());
+        node.addChild('a');
+        assertEquals(node.hashCode(), node2.hashCode());
+        node2.addChild('b');
+        node.addChild('c');
+        assertNotEquals(node.hashCode(), node2.hashCode());
     }
 }

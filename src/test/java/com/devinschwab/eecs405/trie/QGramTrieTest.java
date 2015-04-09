@@ -21,6 +21,16 @@ public class QGramTrieTest {
         trie = new QGramTrie(2, 4);
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructWith0Qmin() throws Exception {
+        trie = new QGramTrie(0, 10);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testConstructWithQMinGreaterThanQMax() throws Exception {
+        trie = new QGramTrie(11, 10);
+    }
+
     @Test
     public void testConstructWithQGramList() throws Exception {
         List<QGram> qgrams = new LinkedList<>();
@@ -42,7 +52,7 @@ public class QGramTrieTest {
         qgrams.add(new QGram(2, "nive"));
 
         trie = new QGramTrie(2, 4, qgrams);
-        assertEquals(qgrams.size(), trie.getFrequency("nive"));
+        assertEquals(qgrams.size(), trie.getQGramFrequency("nive"));
         assertTrue(trie.contains("nive"));
         assertTrue(trie.contains("niv"));
         assertTrue(trie.contains("ni"));
@@ -72,7 +82,7 @@ public class QGramTrieTest {
         assertFalse(trie.contains("nive"));
         trie.insert("nive");
         assertTrue(trie.contains("nive"));
-        assertEquals(1, trie.getFrequency("nive"));
+        assertEquals(1, trie.getQGramFrequency("nive"));
         assertTrue(trie.contains("niv"));
         assertTrue(trie.contains("ni"));
     }
@@ -92,7 +102,7 @@ public class QGramTrieTest {
         assertFalse(trie.contains("nive"));
         trie.insert(new QGram(0, "nive"));
         assertTrue(trie.contains("nive"));
-        assertEquals(1, trie.getFrequency("nive"));
+        assertEquals(1, trie.getQGramFrequency("nive"));
         assertTrue(trie.contains("niv"));
         assertTrue(trie.contains("ni"));
     }
@@ -110,35 +120,35 @@ public class QGramTrieTest {
     @Test
     public void testGetFrequencyExists() throws Exception {
         trie.insert("nive");
-        assertEquals(1, trie.getFrequency("nive"));
-        assertEquals(0, trie.getFrequency("niv"));
-        assertEquals(0, trie.getFrequency("ni"));
+        assertEquals(1, trie.getQGramFrequency("nive"));
+        assertEquals(0, trie.getQGramFrequency("niv"));
+        assertEquals(0, trie.getQGramFrequency("ni"));
         trie.insert("nive");
-        assertEquals(2, trie.getFrequency("nive"));
-        assertEquals(0, trie.getFrequency("niv"));
-        assertEquals(0, trie.getFrequency("ni"));
+        assertEquals(2, trie.getQGramFrequency("nive"));
+        assertEquals(0, trie.getQGramFrequency("niv"));
+        assertEquals(0, trie.getQGramFrequency("ni"));
     }
 
     @Test
     public void testGetFrequencyNonExistant() throws Exception {
-        assertEquals(-1, trie.getFrequency("nive"));
+        assertEquals(-1, trie.getQGramFrequency("nive"));
     }
 
     @Test
     public void testGetFrequencyExistsQGram() throws Exception {
         trie.insert(new QGram(0, "nive"));
-        assertEquals(1, trie.getFrequency(new QGram(0, "nive")));
-        assertEquals(0, trie.getFrequency(new QGram(1, "niv")));
-        assertEquals(0, trie.getFrequency(new QGram(2, "ni")));
+        assertEquals(1, trie.getQGramFrequency(new QGram(0, "nive")));
+        assertEquals(0, trie.getQGramFrequency(new QGram(1, "niv")));
+        assertEquals(0, trie.getQGramFrequency(new QGram(2, "ni")));
         trie.insert(new QGram(1, "nive"));
-        assertEquals(2, trie.getFrequency(new QGram(0, "nive")));
-        assertEquals(0, trie.getFrequency(new QGram(1, "niv")));
-        assertEquals(0, trie.getFrequency(new QGram(2, "ni")));
+        assertEquals(2, trie.getQGramFrequency(new QGram(0, "nive")));
+        assertEquals(0, trie.getQGramFrequency(new QGram(1, "niv")));
+        assertEquals(0, trie.getQGramFrequency(new QGram(2, "ni")));
     }
 
     @Test
     public void testGetFrequencyNonExistantGram() throws Exception {
-        assertEquals(-1, trie.getFrequency(new QGram(1, "nive")));
+        assertEquals(-1, trie.getQGramFrequency(new QGram(1, "nive")));
     }
 
     @Test
@@ -196,5 +206,68 @@ public class QGramTrieTest {
         assertTrue(words.contains("nive"));
         assertTrue(words.contains("niv"));
         assertTrue(words.contains("ni"));
+    }
+
+    @Test
+    public void testGetPrefixFrequency() throws Exception {
+        assertEquals(-1, trie.getPrefixFrequency("a"));
+        trie.insert("abc");
+        trie.insert("abd");
+        assertEquals(2, trie.getPrefixFrequency("a"));
+        trie.insert("acd");
+        assertEquals(3, trie.getPrefixFrequency("a"));
+        trie.insert("bbb");
+        assertEquals(3, trie.getPrefixFrequency("a"));
+        assertEquals(4, trie.getPrefixFrequency(""));
+    }
+
+    @Test
+    public void testTrieEquals() throws Exception {
+        QGramTrie trie2 = new QGramTrie(trie.qmin, trie.qmax);
+        assertTrue(trie.equals(trie2));
+
+        trie2 = new QGramTrie(trie.qmin, trie.qmax+1);
+        assertFalse(trie.equals(trie2));
+
+        trie2 = new QGramTrie(trie.qmin+1, trie.qmax);
+        assertFalse(trie.equals(trie2));
+
+        trie2 = new QGramTrie(trie.qmin, trie.qmax);
+        assertTrue(trie.equals(trie2));
+        trie2.insert("uni");
+        assertFalse(trie.equals(trie2));
+        trie.insert("uni");
+        assertTrue(trie.equals(trie2));
+        trie2.insert("uni");
+        assertFalse(trie.equals(trie2));
+        trie.insert("uni");
+        assertTrue(trie.equals(trie2));
+        trie2.insert("un");
+        assertFalse(trie.equals(trie2));
+    }
+
+    @Test
+    public void testTrieHashCode() throws Exception {
+        QGramTrie trie2 = new QGramTrie(trie.qmin, trie.qmax);
+        assertEquals(trie.hashCode(), trie2.hashCode());
+
+        trie2 = new QGramTrie(trie.qmin, trie.qmax+1);
+        assertNotEquals(trie.hashCode(), trie2.hashCode());
+
+        trie2 = new QGramTrie(trie.qmin+1, trie.qmax);
+        assertNotEquals(trie.hashCode(), trie2.hashCode());
+
+        trie2 = new QGramTrie(trie.qmin, trie.qmax);
+        assertEquals(trie.hashCode(), trie2.hashCode());
+        trie2.insert("uni");
+        assertNotEquals(trie.hashCode(), trie2.hashCode());
+        trie.insert("uni");
+        assertEquals(trie.hashCode(), trie2.hashCode());
+        trie2.insert("uni");
+        assertNotEquals(trie.hashCode(), trie2.hashCode());
+        trie.insert("uni");
+        assertEquals(trie.hashCode(), trie2.hashCode());
+        trie2.insert("un");
+        assertNotEquals(trie.hashCode(), trie2.hashCode());
     }
 }

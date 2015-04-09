@@ -23,6 +23,12 @@ public class QGramTrie {
      * @param qmax The maximum qgram size
      */
     public QGramTrie(int qmin, int qmax) {
+        if (qmin < 1) {
+            throw new IllegalArgumentException("qmin must be > 0");
+        }
+        if (qmin > qmax) {
+            throw new IllegalArgumentException("qmax must be >= qmin");
+        }
         this.root = new TrieNode();
         this.qmax = qmax;
         this.qmin = qmin;
@@ -97,7 +103,7 @@ public class QGramTrie {
      * @param qgram The qgram to lookup the frequency of
      * @return The frequency of the qgram.
      */
-    public int getFrequency(String qgram) {
+    public int getQGramFrequency(String qgram) {
         if(qgram.length() < qmin || qgram.length() > qmax) {
             return -1;
         }
@@ -123,8 +129,26 @@ public class QGramTrie {
      * @param qgram The qgram to lookup the frequency of
      * @return The frequency of the qgram.
      */
-    public int getFrequency(QGram qgram) {
-        return getFrequency(qgram.gram);
+    public int getQGramFrequency(QGram qgram) {
+        return getQGramFrequency(qgram.gram);
+    }
+
+    /**
+     * Get the frequency of this qgram prefix. Essentially this gets the frequency
+     * of the sum of the frequency of the children of the specified prefix.
+     *
+     * @param prefix Subtree to get frequency of
+     * @return Frequency of prefix or -1 if prefix is not in Trie
+     */
+    public int getPrefixFrequency(String prefix) {
+        TrieNode currNode = root;
+        for(char c : prefix.toCharArray()) {
+            currNode = currNode.getChild(c);
+            if(currNode == null) {
+                return -1;
+            }
+        }
+        return  currNode.frequency;
     }
 
     /**
@@ -207,5 +231,46 @@ public class QGramTrie {
             }
         }
         return words;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        QGramTrie trie = (QGramTrie) o;
+
+        if (this.qmin != trie.qmin) return false;
+        if (this.qmax != trie.qmax) return false;
+        return equalsHelper(root, trie.root);
+
+    }
+
+    private boolean equalsHelper(TrieNode nodeA, TrieNode nodeB) {
+        if(!nodeA.equals(nodeB)) {
+            return false;
+        }
+
+        for(Character key : nodeA.getChildren().keySet()) {
+            if (!equalsHelper(nodeA.getChild(key), nodeB.getChild(key))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = qmin;
+        result = 31 * result + qmax;
+        return hashCodeHelper(result, root);
+    }
+
+    private int hashCodeHelper(int result, TrieNode node) {
+        result = 31 * result + node.hashCode();
+        for(TrieNode child : node.getChildren().values()) {
+            result = hashCodeHelper(result, child);
+        }
+        return result;
     }
 }
