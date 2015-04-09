@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by Devin on 4/8/15.
  */
-public class TrieNode {
+public class TrieNode implements Comparable<TrieNode> {
 
     public int frequency;
     public boolean isQGram;
@@ -77,5 +77,16 @@ public class TrieNode {
             result = 31 * result + key.hashCode();
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(TrieNode o) {
+        if(frequency > o.frequency) {
+            return 1;
+        } else if(frequency == o.frequency) {
+            return 0;
+        } else {
+            return -1;
+        }
     }
 }

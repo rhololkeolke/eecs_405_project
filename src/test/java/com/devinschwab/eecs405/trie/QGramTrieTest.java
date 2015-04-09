@@ -38,7 +38,6 @@ public class QGramTrieTest {
         qgrams.add(new QGram(1, "niv"));
 
         trie = new QGramTrie(2, 4, qgrams);
-        assertEquals(qgrams.size()*2, trie.getNumQGrams());
         for(QGram qgram : qgrams) {
             assertTrue(trie.contains(qgram));
         }
@@ -56,7 +55,6 @@ public class QGramTrieTest {
         assertTrue(trie.contains("nive"));
         assertTrue(trie.contains("niv"));
         assertTrue(trie.contains("ni"));
-        assertEquals(3, trie.getNumQGrams());
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -167,17 +165,6 @@ public class QGramTrieTest {
         assertTrue(trie.contains(new QGram(0, "nive")));
         assertTrue(trie.contains(new QGram(2, "niv")));
         assertTrue(trie.contains(new QGram(3, "ni")));
-    }
-
-    @Test
-    public void testGetNumQGrams() throws Exception {
-        assertEquals(0, trie.getNumQGrams());
-        trie.insert("nive");
-        assertEquals(3, trie.getNumQGrams());
-        trie.insert("nive");
-        assertEquals(3, trie.getNumQGrams()); // don't count duplicates
-        trie.insert("fox");
-        assertEquals(5, trie.getNumQGrams());
     }
 
     @Test

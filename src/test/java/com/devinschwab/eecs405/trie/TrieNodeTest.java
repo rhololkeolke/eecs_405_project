@@ -3,7 +3,7 @@ package com.devinschwab.eecs405.trie;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -158,5 +158,34 @@ public class TrieNodeTest {
         node2.addChild('b');
         node.addChild('c');
         assertNotEquals(node.hashCode(), node2.hashCode());
+    }
+
+    @Test
+    public void testCompareTo() throws Exception {
+        TrieNode node2 = new TrieNode();
+        assertEquals(0, node.compareTo(node2));
+        node2.frequency = 1;
+        assertEquals(-1, node.compareTo(node2));
+        assertEquals(1, node2.compareTo(node));
+    }
+
+    @Test
+    public void testSortComparables() throws Exception {
+        List<TrieNode> nodes = new LinkedList<>();
+        TrieNode node2 = new TrieNode();
+        node2.frequency = 2;
+        nodes.add(node2);
+
+        nodes.add(node);
+
+        TrieNode node1 = new TrieNode();
+        node1.frequency = 1;
+        nodes.add(node1);
+
+        Collections.sort(nodes);
+
+        assertEquals(node, nodes.get(0));
+        assertEquals(node1, nodes.get(1));
+        assertEquals(node2, nodes.get(2));
     }
 }

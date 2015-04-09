@@ -181,10 +181,6 @@ public class QGramTrie {
         return contains(qgram.gram);
     }
 
-    public int getNumQGrams() {
-        return numQGrams;
-    }
-
     /**
      * Get a list of this qgram and any qgrams this qgram is a prefix for.
      *
