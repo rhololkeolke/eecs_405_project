@@ -7,6 +7,16 @@ repositories {
     mavenCentral()
 }
 
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'HRL With Dependencies',
+                'Implementation-Version': version
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 dependencies {
     compile group: 'com.beust', name: 'jcommander', version: '1.30'
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'

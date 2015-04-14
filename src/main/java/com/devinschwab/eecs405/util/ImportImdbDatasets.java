@@ -138,7 +138,7 @@ public class ImportImdbDatasets {
                         System.out.println("Inserted " + numNamesInserted + " values");
                         insertStringStmt.executeBatch();
                     }
-                    if (numNamesInserted >= args.limit) {
+                    if (args.limit > 0 && numNamesInserted >= args.limit) {
                         insertStringStmt.executeBatch();
                         System.out.println("Limit reached!");
                         break;
