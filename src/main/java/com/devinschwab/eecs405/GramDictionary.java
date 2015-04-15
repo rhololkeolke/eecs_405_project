@@ -13,9 +13,14 @@ public class GramDictionary {
     public QGramTrie dictionaryTrie;
     public QGramTrie inverseTrie;
 
+    private boolean needsPruning;
+    private boolean needsInverse;
+
     public GramDictionary(int qmin, int qmax) {
         dictionaryTrie = new QGramTrie(qmin, qmax);
         inverseTrie = new QGramTrie(qmin, qmax);
+        needsInverse = true;
+        needsPruning = true;
     }
 
     public void addStringToFrequencyTrie(String s) {
@@ -23,9 +28,16 @@ public class GramDictionary {
         for(QGram qgram : qgrams) {
             dictionaryTrie.insert(qgram);
         }
+        needsPruning = true;
+        needsInverse = true;
     }
 
     public void prune(int threshold) {
+        if (!needsPruning) {
+            return;
+        }
+        needsPruning = false;
+        needsInverse = true;
         prune(dictionaryTrie.root, threshold);
     }
 
@@ -71,6 +83,11 @@ public class GramDictionary {
     }
 
     public void generateInverseTrie() {
+        // if no new strings have been added then don't do anything
+        if (!needsInverse) {
+            return;
+        }
+        needsInverse = false;
         List<String> qgrams = dictionaryTrie.getExtendedQGrams("");
         inverseTrie = new QGramTrie(getQMin(), getQMax());
         for(String qgram : qgrams) {
