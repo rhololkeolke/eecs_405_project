@@ -88,7 +88,7 @@ public class GramDictionary {
             return;
         }
         needsInverse = false;
-        List<String> qgrams = dictionaryTrie.getExtendedQGrams("");
+        List<String> qgrams = dictionaryTrie.getExtendedQGrams("", true);
         inverseTrie = new QGramTrie(getQMin(), getQMax());
         for(String qgram : qgrams) {
             inverseTrie.insert(new StringBuilder(qgram).reverse().toString());

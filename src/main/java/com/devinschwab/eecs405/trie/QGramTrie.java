@@ -189,7 +189,7 @@ public class QGramTrie {
      * @param prefix The prefix qgram to find extended qgrams for.
      * @return The list of extended qgrams in the trie
      */
-    public List<String> getExtendedQGrams(String prefix) {
+    public List<String> getExtendedQGrams(String prefix, boolean includePrefix) {
         if(prefix.length() > qmax) {
             return new LinkedList<>();
         }
@@ -201,7 +201,15 @@ public class QGramTrie {
             }
         }
 
-        return getQGrams(currNode, prefix);
+        LinkedList<String> words = new LinkedList<>();
+        if (includePrefix && currNode.isQGram) {
+            words.add(prefix);
+        }
+        for (Map.Entry<Character, TrieNode> entry: currNode.getChildren().entrySet()) {
+            words.addAll(getQGrams(entry.getValue(), prefix + entry.getKey()));
+        }
+
+        return words;
     }
 
     /**
@@ -212,8 +220,8 @@ public class QGramTrie {
      * @param prefix The prefix qgram to find extended qgrams for.
      * @return The list of extended qgrams in the trie
      */
-    public List<String> getExtendedQGrams(QGram prefix) {
-        return getExtendedQGrams(prefix.gram);
+    public List<String> getExtendedQGrams(QGram prefix, boolean includePrefix) {
+        return getExtendedQGrams(prefix.gram, includePrefix);
     }
 
     private List<String> getQGrams(TrieNode node, String prefix) {

@@ -169,11 +169,11 @@ public class QGramTrieTest {
 
     @Test
     public void testGetExtendedQGramStrings() throws Exception {
-        List<String> words = trie.getExtendedQGrams("qu");
+        List<String> words = trie.getExtendedQGrams("qu", true);
         assertNotNull(words);
         assertEquals(0, words.size());
         trie.insert("nive");
-        words = trie.getExtendedQGrams("n");
+        words = trie.getExtendedQGrams("n", true);
         assertNotNull(words);
         assertEquals(3, words.size());
         assertTrue(words.contains("nive"));
@@ -183,11 +183,11 @@ public class QGramTrieTest {
 
     @Test
     public void testGetExtendedQGrams() throws Exception {
-        List<String> words = trie.getExtendedQGrams(new QGram(0, "n"));
+        List<String> words = trie.getExtendedQGrams(new QGram(0, "n"), true);
         assertNotNull(words);
         assertEquals(0, words.size());
         trie.insert(new QGram(0, "nive"));
-        words = trie.getExtendedQGrams(new QGram(1, "n"));
+        words = trie.getExtendedQGrams(new QGram(1, "n"), true);
         assertNotNull(words);
         assertEquals(3, words.size());
         assertTrue(words.contains("nive"));

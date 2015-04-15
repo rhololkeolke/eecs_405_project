@@ -1,9 +1,6 @@
 package com.devinschwab.eecs405;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Devin on 4/14/15.
@@ -19,6 +16,7 @@ public class NagVectorGenerator {
      */
     public NagVectorGenerator(GramDictionary gramDict) {
         this.gramDict = gramDict;
+        gramDict.generateInverseTrie();
     }
 
     /**
@@ -32,7 +30,31 @@ public class NagVectorGenerator {
      * @return The list of NAG values for the NAG vector
      */
     public List<Integer> generate(String s, int numVectors) {
-        return null;
+        List<QGram> grams = gramDict.generateVGrams(s);
+
+        List<Integer> affectedGramCounts = new ArrayList<>(2 * s.length() + 1);
+
+        // get the affected grams for deletions/substitutions
+        for (int i = 0; i < s.length(); i++) {
+            affectedGramCounts.add(numPotentiallyAffectedGrams(s, grams, i, false));
+        }
+
+        // get the affected grams for insertions
+        for (int i = 0; i <= s.length(); i++) {
+            affectedGramCounts.add(numPotentiallyAffectedGrams(s, grams, i, true));
+        }
+
+        // sort the list
+        Collections.sort(affectedGramCounts, Collections.reverseOrder());
+
+        List<Integer> nagVector = new ArrayList<>(numVectors);
+        int lastNagValue = 0;
+        for (int i = 0; i < Math.min(numVectors, affectedGramCounts.size()); i++) {
+            lastNagValue += affectedGramCounts.get(i);
+            nagVector.add(lastNagValue);
+        }
+
+        return nagVector;
     }
 
     /**
@@ -51,21 +73,35 @@ public class NagVectorGenerator {
     public int numPotentiallyAffectedGrams(String s, List<QGram> vgrams, int charIndex, boolean isInsertion) {
         Set<QGram> potentiallyAffectedGrams = new HashSet<>(vgrams);
 
-        // check category 1
-        for (int category = 1; category <= 4; category++) {
-            Iterator<QGram> gramIter = potentiallyAffectedGrams.iterator();
+        // filter category 1
+        Iterator<QGram> gramIter = potentiallyAffectedGrams.iterator();
+        while (gramIter.hasNext()) {
+            if (checkCategory1(s, gramIter.next(), charIndex, isInsertion)) {
+                gramIter.remove();
+            }
+        }
+
+        if (potentiallyAffectedGrams.size() == 0) {
+            return 0;
+        }
+
+        // check category 2, 3, and 4
+        int numAffected = 0;
+        for (int category = 2; category <= 4; category++) {
+            gramIter = potentiallyAffectedGrams.iterator();
             while (gramIter.hasNext()) {
-                if (!checkCategory(category, s, gramIter.next(), charIndex, isInsertion)) {
+                if (checkCategory(category, s, gramIter.next(), charIndex, isInsertion)) {
+                    numAffected++;
                     gramIter.remove();
                 }
             }
 
             // stop if all grams have beem eliminated
             if (potentiallyAffectedGrams.size() == 0) {
-                return 0;
+                return numAffected;
             }
         }
-        return potentiallyAffectedGrams.size();
+        return numAffected;
     }
 
     protected boolean checkCategory(int category, String s, QGram gram, int charIndex, boolean isInsertion) {
@@ -90,13 +126,76 @@ public class NagVectorGenerator {
         // this gram cannot be affected
         int a = Math.max(0, charIndex - gramDict.getQMax() + 1);
         if (gram.position < a) {
-            return false;
+            return true;
         }
 
         // if the end of the gram is greater than the upper bound of potential effects
         // this gram cannot be affected
         int b;
-        if (isInsertion) {
+        if (!isInsertion) {
+            b = Math.min(s.length(), charIndex + gramDict.getQMax() - 1);
+        } else {
+            b = Math.min(s.length(), charIndex + gramDict.getQMax() - 2);
+        }
+        if (gram.position + gram.size() - 1 > b) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkCategory2(String s, QGram gram, int charIndex, boolean isInsertion) {
+
+        // if gram starts after character index
+        if ((!isInsertion && gram.position > charIndex)
+                || (isInsertion && gram.position >= charIndex)){
+            return false;
+        }
+
+        // if gram ends before character index
+        if (gram.position + gram.size() - 1 < charIndex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean checkCategory3(String s, QGram gram, int charIndex, boolean isInsertion) {
+
+        int a = Math.max(0, charIndex - gramDict.getQMax() + 1);
+        if (a > gram.position) {
+            return false;
+        }
+
+        if (gram.position + gram.size() - 1 > charIndex - 1) {
+            return false;
+        }
+
+        for (int j = a; j <= charIndex - gramDict.getQMin() + 1; j++) {
+            if (j > gram.position) {
+                return false;
+            }
+            if (gramDict.dictionaryTrie.getExtendedQGrams(s.substring(j, charIndex), false).size() > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean checkCategory4(String s, QGram gram, int charIndex, boolean isInsertion) {
+        int rightOfCharIndex;
+        if (!isInsertion) {
+            rightOfCharIndex = charIndex + 1;
+        } else {
+            rightOfCharIndex = charIndex;
+        }
+        if (gram.position < rightOfCharIndex) {
+            return false;
+        }
+
+        int b;
+        if (!isInsertion) {
             b = Math.min(s.length(), charIndex + gramDict.getQMax() - 1);
         } else {
             b = Math.min(s.length(), charIndex + gramDict.getQMax() - 2);
@@ -105,18 +204,15 @@ public class NagVectorGenerator {
             return false;
         }
 
-        return true;
-    }
-
-    private boolean checkCategory2(String s, QGram gram, int charIndex, boolean isInsertion) {
-        return false;
-    }
-
-    private boolean checkCategory3(String s, QGram gram, int charIndex, boolean isInsertion) {
-        return false;
-    }
-
-    private boolean checkCategory4(String s, QGram gram, int charIndex, boolean isInsertion) {
+        for (int j = b; j >= rightOfCharIndex; j--) {
+            if (j < gram.position + gram.size() - 1) {
+                return false;
+            }
+            String suffix = new StringBuilder(s.substring(rightOfCharIndex, j+1)).reverse().toString();
+            if (gramDict.inverseTrie.getExtendedQGrams(suffix, false).size() > 0) {
+                return true;
+            }
+        }
         return false;
     }
 }
