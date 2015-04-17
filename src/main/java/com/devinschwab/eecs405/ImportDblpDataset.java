@@ -5,6 +5,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.devinschwab.eecs405.util.FileArgConverter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -18,9 +21,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.xpath.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Devin on 4/17/15.
@@ -67,6 +70,8 @@ public class ImportDblpDataset {
         }
     }
 
+    static final Pattern authorTag = Pattern.compile("<author>(.*)</author>");
+
     public static void main(String[] rawArgs) {
 
         CommandLineArgs args = new CommandLineArgs();
@@ -79,56 +84,25 @@ public class ImportDblpDataset {
             System.exit(1);
         }
 
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        try {
-            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+        try (BufferedReader br = new BufferedReader(new FileReader(args.inFile));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(args.outFile));
+        ) {
 
-        DocumentBuilder builder = null;
-        try {
-            builder = dbf.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+            CSVPrinter csvPrinter = new CSVPrinter(bw, CSVFormat.DEFAULT);
 
-        System.out.println("Parsing document");
-        Document document = null;
-        try {
-            document = builder.parse(
-                    new FileInputStream(args.inFile));
-        } catch (SAXException e) {
+            String currLine;
+            while ((currLine = br.readLine()) != null) {
+                Matcher lineMatch = authorTag.matcher(currLine);
+                if (lineMatch.matches()) {
+                    csvPrinter.print(lineMatch.group(1));
+                    csvPrinter.println();
+                }
+            }
+
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(1);
         }
-
-        System.out.println("Running XPath query");
-        XPathFactory xpf = XPathFactory.newInstance();
-        try {
-            xpf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
-        } catch (XPathFactoryConfigurationException e) {
-            e.printStackTrace();
-        }
-
-        XPath xPath =  xpf.newInstance().newXPath();
-
-        String expression = "//author/text()";
-
-
-        try {
-            System.out.println("Results: ");
-            NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(document, XPathConstants.NODESET);
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                System.out.println(node.toString());
-            }
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-        }
-
     }
 }
