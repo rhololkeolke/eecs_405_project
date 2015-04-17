@@ -87,17 +87,12 @@ public class GramDictionary {
         if (!needsInverse) {
             return;
         }
-        needsInverse = false;
-        List<String> qgrams = dictionaryTrie.getExtendedQGrams("", true);
-        inverseTrie = new QGramTrie(getQMin(), getQMax());
-        for(String qgram : qgrams) {
-            inverseTrie.insert(new StringBuilder(qgram).reverse().toString());
-        }
+        inverseTrie = dictionaryTrie.invert();
     }
 
     public List<QGram> generateVGrams(String s) {
         List<QGram> vgrams = new LinkedList<>();
-        for(int p=0; p<s.length() - getQMin(); p++) {
+        for(int p=0; p<s.length() - getQMin() + 1; p++) {
             String longestQGram = dictionaryTrie.getLongestQGram(s.substring(p, Math.min(s.length(), p+getQMax())));
             if (longestQGram == null) {
                 longestQGram = s.substring(p, p+getQMin());

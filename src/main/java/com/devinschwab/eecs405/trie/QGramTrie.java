@@ -53,6 +53,21 @@ public class QGramTrie {
         }
     }
 
+    public QGramTrie invert() {
+        QGramTrie inverseTree = new QGramTrie(qmin, qmax);
+        List<String> grams = this.getExtendedQGrams("", true);
+
+        for (String gram : grams) {
+            TrieNode currNode = inverseTree.root;
+            for (char c : new StringBuilder(gram).reverse().toString().toCharArray()) {
+                currNode = currNode.addChild(c);
+            }
+            currNode.isQGram = true;
+        }
+
+        return inverseTree;
+    }
+
     /**
      * Insert the qgram and all prefixes of size qmin or greater.
      *

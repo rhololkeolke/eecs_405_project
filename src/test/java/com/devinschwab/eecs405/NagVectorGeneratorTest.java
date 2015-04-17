@@ -177,5 +177,30 @@ public class NagVectorGeneratorTest {
         for (int i = 0; i < expectedVector.size(); i++) {
             assertEquals(expectedVector.get(i), nagVector.get(i));
         }
+
+        nagVector = nagGenerator.generate("stich", 2);
+        assertEquals(expectedVector.size(), nagVector.size());
+
+        for (int i = 0; i < expectedVector.size(); i++) {
+            assertEquals(expectedVector.get(i), nagVector.get(i));
+        }
+
+        nagVector = nagGenerator.generate("such", 2);
+        assertEquals(expectedVector.size(), nagVector.size());
+
+        for (int i = 0; i < expectedVector.size(); i++) {
+            assertEquals(expectedVector.get(i), nagVector.get(i));
+        }
+
+        expectedVector = new ArrayList<>(2);
+        expectedVector.add(3);
+        expectedVector.add(4);
+
+        nagVector = nagGenerator.generate("stuck", 2);
+        assertEquals(expectedVector.size(), nagVector.size());
+
+        for (int i = 0; i < expectedVector.size(); i++) {
+            assertEquals(expectedVector.get(i), nagVector.get(i));
+        }
     }
 }

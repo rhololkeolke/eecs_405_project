@@ -51,6 +51,8 @@ public class NagVectorGenerator {
         int lastNagValue = 0;
         for (int i = 0; i < Math.min(numVectors, affectedGramCounts.size()); i++) {
             lastNagValue += affectedGramCounts.get(i);
+            // Number of affected grams cannot be greater than the total number of grams for a string
+            lastNagValue = Math.min(lastNagValue, grams.size());
             nagVector.add(lastNagValue);
         }
 
