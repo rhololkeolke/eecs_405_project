@@ -1,12 +1,15 @@
 package com.devinschwab.eecs405.trie;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by Devin on 4/8/15.
  */
-public class TrieNode implements Comparable<TrieNode> {
+public class TrieNode implements Comparable<TrieNode>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public int frequency;
     public boolean isQGram;

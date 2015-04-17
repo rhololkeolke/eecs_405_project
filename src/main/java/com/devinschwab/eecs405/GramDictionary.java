@@ -3,12 +3,15 @@ package com.devinschwab.eecs405;
 import com.devinschwab.eecs405.trie.QGramTrie;
 import com.devinschwab.eecs405.trie.TrieNode;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by Devin on 4/8/15.
  */
-public class GramDictionary {
+public class GramDictionary implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public QGramTrie dictionaryTrie;
     public QGramTrie inverseTrie;

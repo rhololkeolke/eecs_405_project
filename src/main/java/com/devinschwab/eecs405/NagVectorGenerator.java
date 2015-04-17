@@ -1,11 +1,14 @@
 package com.devinschwab.eecs405;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by Devin on 4/14/15.
  */
-public class NagVectorGenerator {
+public class NagVectorGenerator implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public GramDictionary gramDict;
 
@@ -49,8 +52,10 @@ public class NagVectorGenerator {
 
         List<Integer> nagVector = new ArrayList<>(numVectors);
         int lastNagValue = 0;
-        for (int i = 0; i < Math.min(numVectors, affectedGramCounts.size()); i++) {
-            lastNagValue += affectedGramCounts.get(i);
+        for (int i = 0; i < numVectors; i++) {
+            if (i < affectedGramCounts.size()) {
+                lastNagValue += affectedGramCounts.get(i);
+            }
             // Number of affected grams cannot be greater than the total number of grams for a string
             lastNagValue = Math.min(lastNagValue, grams.size());
             nagVector.add(lastNagValue);
@@ -188,7 +193,7 @@ public class NagVectorGenerator {
     private boolean checkCategory4(String s, QGram gram, int charIndex, boolean isInsertion) {
         int rightOfCharIndex;
         if (!isInsertion) {
-            rightOfCharIndex = charIndex + 1;
+            rightOfCharIndex = Math.max(s.length(), charIndex + 1);
         } else {
             rightOfCharIndex = charIndex;
         }
@@ -210,7 +215,7 @@ public class NagVectorGenerator {
             if (j < gram.position + gram.size() - 1) {
                 return false;
             }
-            String suffix = new StringBuilder(s.substring(rightOfCharIndex, j+1)).reverse().toString();
+            String suffix = new StringBuilder(s.substring(rightOfCharIndex, j)).reverse().toString();
             if (gramDict.inverseTrie.getExtendedQGrams(suffix, false).size() > 0) {
                 return true;
             }

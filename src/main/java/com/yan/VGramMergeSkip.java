@@ -25,14 +25,14 @@ public class VGramMergeSkip {
         }
         listNum -= 1;
 
-        java.util.List<QGram> vGram;
+        int numVGrams;
 
         while (heap.size() > 0) {
             int t = heap.get(0);//t is the top the heap
 
             //calculate T for t
-            vGram = v.vgramList.get(t);
-            Tc = vGram.size() - v.nagList.get(t).get(edThreshold - 1);
+            numVGrams = v.numVGrams.get(t);
+            Tc = numVGrams - v.nagList.get(t).get(edThreshold - 1);
             T = Math.max(Tq, Tc);
             //T=max(|VG(s1)|-NAG(s1, k),|VG(s2)|-NAG(s2, k))
             //pop from heap those records equals t
