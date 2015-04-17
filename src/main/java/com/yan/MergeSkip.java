@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MergeSkip {
-    ArrayList<Integer> heap = new ArrayList<Integer>();    //build heap
-    ArrayList<Integer> R = new ArrayList<Integer>();//initialize output list
+    ArrayList<Integer> heap = new ArrayList<>();    //build heap
+    ArrayList<Integer> R = new ArrayList<>();//initialize output list
     public int listNum = 0;
 
     public ArrayList<Integer> mergeSkip(ArrayList<List<Integer>> lists, int T) {

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VGramMergeSkip {
-    ArrayList<Integer> heap = new ArrayList<Integer>();    //build heap
-    ArrayList<Integer> R = new ArrayList<Integer>();//initialize output list
+    ArrayList<Integer> heap = new ArrayList<>();    //build heap
+    ArrayList<Integer> R = new ArrayList<>();//initialize output list
     public int listNum = 0;
 
     public ArrayList<Integer> vGramMergeSkip(VGramIndex v, ArrayList<List<Integer>> lists, int Tq, int qmin, int qmax, int edThreshold) {
@@ -32,7 +32,6 @@ public class VGramMergeSkip {
 
             //calculate T for t
             vGram = v.vgramList.get(t);
-            List<Integer> nagVector = v.nagList.get(t);
             Tc = vGram.size() - v.nagList.get(t).get(edThreshold - 1);
             T = Math.max(Tq, Tc);
             //T=max(|VG(s1)|-NAG(s1, k),|VG(s2)|-NAG(s2, k))

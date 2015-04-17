@@ -9,10 +9,10 @@ public class test {
 
     public ArrayList<Integer> runQGram(String query, int T, int q) {
 
-        ArrayList<List<Integer>> lists = new ArrayList<List<Integer>>();
-        ArrayList<Integer> R = new ArrayList<Integer>();
+        ArrayList<List<Integer>> lists = new ArrayList<>();
+        ArrayList<Integer> R;
         VGramIndex v = new VGramIndex(q, q);
-        ArrayList<String> qGram = new ArrayList<String>();
+        ArrayList<String> qGram = new ArrayList<>();
         for (int i = 1; i <= query.length() - q + 1; i++) {
             qGram.add(query.substring(i - 1, i - 1 + q));
         }

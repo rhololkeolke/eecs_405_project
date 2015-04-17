@@ -15,8 +15,8 @@ public class TestVGram {
     public ArrayList<Integer> runVGram(String query, int edThreshold, int qmin, int qmax) throws IOException {
 
         int Tq = 4;//query's occurence threshold
-        ArrayList<List<Integer>> lists = new ArrayList<List<Integer>>();
-        ArrayList<Integer> R = new ArrayList<Integer>();//output
+        ArrayList<List<Integer>> lists = new ArrayList<>();
+        ArrayList<Integer> R;//output
 
         java.util.List<QGram> vGram;
 
