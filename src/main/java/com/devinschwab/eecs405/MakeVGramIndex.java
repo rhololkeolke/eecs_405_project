@@ -12,7 +12,9 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,8 +32,8 @@ public class MakeVGramIndex {
         @Parameter(names = "-out",
                 required = true,
                 converter = FileArgConverter.class,
-                description = "SQLite Database Name")
-        public File outFile;
+                description = "Index output directory")
+        public File outDir;
 
         @Parameter(names = "-l", description = "Insert up to this many names")
         public int limit;
@@ -100,23 +102,26 @@ public class MakeVGramIndex {
             System.exit(1);
         }
 
-        VGramIndex vGramIndex = new VGramIndex(args.qmin, args.qmax);
+        constructVGramIndex(args.inFile, args.outDir, args.qmin, args.qmax, args.k, args.threshold);
+    }
+
+    public static List<Duration> constructVGramIndex(File inFile, File outDir, int qmin, int qmax, int k, int threshold) throws IOException {
+        List<Duration> durations = new LinkedList<>();
+
+        VGramIndex vGramIndex = new VGramIndex(qmin, qmax);
 
         System.out.println("Starting construction of Trie");
         SimpleStopwatch stopwatch = new SimpleStopwatch();
         stopwatch.start();
 
-        CSVParser parser = CSVParser.parse(args.inFile, Charset.forName("UTF-8"), CSVFormat.DEFAULT);
+        CSVParser parser = CSVParser.parse(inFile, Charset.forName("UTF-8"), CSVFormat.DEFAULT);
         int numAdded = 0;
         for (CSVRecord csvRecord : parser) {
             vGramIndex.gramDict.addStringToFrequencyTrie(csvRecord.get(0));
-            numAdded++;
-            if (numAdded > args.limit && args.limit != 0) {
-                break;
-            }
         }
         stopwatch.stop();
         System.out.println(String.format("Added %d strings to Trie in %s", numAdded, stopwatch.toString()));
+        durations.add(stopwatch.getDuration());
 
         List<String> allGrams = vGramIndex.gramDict.dictionaryTrie.getExtendedQGrams("", true);
         System.out.println("Number of grams in trie: " + allGrams.size());
@@ -124,9 +129,10 @@ public class MakeVGramIndex {
         stopwatch.reset();
         System.out.println("Pruning trie");
         stopwatch.start();
-        vGramIndex.gramDict.prune(args.threshold);
+        vGramIndex.gramDict.prune(threshold);
         stopwatch.stop();
         System.out.println("Pruned in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
 
         allGrams = vGramIndex.gramDict.dictionaryTrie.getExtendedQGrams("", true);
         System.out.println("Number of grams in pruned trie: " + allGrams.size());
@@ -137,6 +143,7 @@ public class MakeVGramIndex {
         vGramIndex.gramDict.generateInverseTrie();
         stopwatch.stop();
         System.out.println("Constructed inverted trie in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
 
         allGrams = vGramIndex.gramDict.inverseTrie.getExtendedQGrams("", true);
         System.out.println("Number of grams in inverse trie: " + allGrams.size());
@@ -146,12 +153,12 @@ public class MakeVGramIndex {
         stopwatch.start();
 
         try {
-            parser = CSVParser.parse(args.inFile, Charset.forName("UTF-8"), CSVFormat.DEFAULT);
+            parser = CSVParser.parse(inFile, Charset.forName("UTF-8"), CSVFormat.DEFAULT);
             for (CSVRecord csvRecord : parser) {
                 int index = (int)csvRecord.getRecordNumber();
                 String s = csvRecord.get(0);
                 List<QGram> grams = vGramIndex.gramDict.generateVGrams(s);
-                List<Integer> nagVector = vGramIndex.nagVectorGenerator.generate(s, args.k);
+                List<Integer> nagVector = vGramIndex.nagVectorGenerator.generate(s, k);
 
                 // save the grams and the nag to index
                 vGramIndex.numVGrams.put(index, grams.size());
@@ -166,29 +173,29 @@ public class MakeVGramIndex {
                     }
                     invertedList.add(index);
                 }
-
-                if (index % 1000 == 0) {
-                    System.out.println("On record " + index);
-                }
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         stopwatch.stop();
         System.out.println("Finished constructing index in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
 
         stopwatch.reset();
         System.out.println("Saving serialized index to disk");
         stopwatch.start();
 
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(args.outFile, false))) {
+        File indexFile = new File(outDir, String.format("%s_%d_%d_%d_%d_vgram.index", inFile.getName(), qmin, qmax, k, threshold));
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFile, false))) {
             out.writeObject(vGramIndex);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         stopwatch.stop();
-        System.out.println("Finished writing index to disk in " + stopwatch.toString());
+        System.out.println("Finished writing index to " + indexFile.toString() + " in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
+
+        return durations;
     }
 }

@@ -28,16 +28,20 @@ public class SimpleStopwatch {
         return startTime != null && stopTime == null;
     }
 
-    @Override
-    public String toString() {
+    public Duration getDuration() {
         if (startTime == null) {
-            return "0";
+            return Duration.ZERO;
         }
 
         if (stopTime == null) {
-            return Duration.between(startTime, Instant.now()).toString();
+            return Duration.between(startTime, Instant.now());
         }
 
-        return Duration.between(startTime, stopTime).toString();
+        return Duration.between(startTime, stopTime);
+    }
+
+    @Override
+    public String toString() {
+        return getDuration().toString();
     }
 }
