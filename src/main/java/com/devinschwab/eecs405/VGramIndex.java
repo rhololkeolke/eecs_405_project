@@ -10,7 +10,7 @@ import java.util.Map;
 public class VGramIndex {
 
     public Map<String, List<Integer>> invertedList;
-    public Map<Integer, List<String>> vgramList;
+    public Map<Integer, List<QGram>> vgramList;
     public Map<Integer, List<Integer>> nagList;
 
     public GramDictionary gramDict;

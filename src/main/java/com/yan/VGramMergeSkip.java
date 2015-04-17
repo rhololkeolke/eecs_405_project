@@ -3,16 +3,17 @@ package com.yan;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MergeSkip {
+import com.devinschwab.eecs405.QGram;
+import com.devinschwab.eecs405.VGramIndex;
+
+public class VGramMergeSkip {
 	ArrayList<Integer> heap = new ArrayList<Integer>();	//build heap
-	ArrayList<Integer> R = new ArrayList<Integer>();//initialize output list
+	ArrayList<Integer> R=new ArrayList<Integer>();//initialize output list
 	public int listNum=0;
 	
-	public ArrayList<Integer> mergeSkip(ArrayList<List<Integer>> lists,int T){
-		
+	public ArrayList<Integer> vGramMergeSkip(ArrayList<List<Integer>> lists,int Tq,int qmin,int qmax,int edThreshold){
+		int T,Tc;//T=max(Tq,Tc)
 		//push first element of each list to heap
-		
-		
 		while(lists.size()>listNum){
 			
 			int value = lists.get(listNum).get(1);
@@ -24,12 +25,21 @@ public class MergeSkip {
 		}
 		listNum-=1;
 		
-		while(heap.size()>T){
-			System.out.println("new step");
+		java.util.List<QGram> vGram;
+		
+		while(heap.size()>0){
 			int t = heap.get(0);//t is the top the heap
-			//pop from heap those records equals t
-			int n=1;//count the occurrence of t
 			
+			//calculate T for t
+			VGramIndex v = new VGramIndex(qmin,qmax);
+			//String tString = v.actors.get(t);
+			vGram = v.vgramList.get(t);
+			List<Integer> nagVector = v.nagList.get(t);
+			Tc = vGram.size() - v.nagList.get(t).get(edThreshold - 1);
+			T=Math.max(Tq, Tc);
+			//T=max(|VG(s1)|-NAG(s1, k),|VG(s2)|-NAG(s2, k))
+			//pop from heap those records equals t
+			int n=0;//count the occurrence of t
 			while(heap.get(n)==t){
 				n=n+1;
 				if(n>=heap.size()-1){
@@ -40,7 +50,7 @@ public class MergeSkip {
 			
 			if(n>=T){
 				R.add(t);
-				//push next record of popped list
+				//push next record of poped list
 				for(int i=0;i<=listNum;i++){
 					if(lists.get(i).get(lists.get(i).get(0))==t){
 						lists.get(i).add(0,lists.get(i).get(0)+1);
@@ -54,7 +64,7 @@ public class MergeSkip {
 			else{
 				heap=heappop(heap,T-1-n);
 				int t2=heap.get(0);//t2 is the current top
-				int m=0;//count the occurrence of t
+				int m=0;//count the occurence of t
 				
 				if(heap.size()<=0){
 					break;
@@ -93,11 +103,11 @@ public class MergeSkip {
 		}
 		return R;
 	}
-	//heap functions
 	public ArrayList<Integer> heappop(ArrayList<Integer> heap,int num){
 		System.out.println("pop "+num);
 		for(int i=1;i<=num;i++){
-			heap.remove(0);
+			if(heap.size()>0)
+				heap.remove(0);
 		}
 		int j=0;
 		System.out.print("heap after pop: ");
