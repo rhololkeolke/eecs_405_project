@@ -49,6 +49,12 @@ public class ConstructVGramIndexBenchmark {
         @Parameter(names = "--qmax", required = true, description = "Maximum q-gram size for all tests")
         public int qmax = 4;
 
+        @Parameter(names = "--qminstep", description = "Step size for qmin")
+        public int qminstep = 1;
+
+        @Parameter(names = "--qmaxstep", description = "Step size for qmax")
+        public int qmaxstep = 1;
+
         @Parameter(names = "--minT", required = true, description = "Minimum pruning threshold for all tests")
         public int minT = 100;
 
@@ -134,8 +140,8 @@ public class ConstructVGramIndexBenchmark {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(args.dataFile))) {
             CSVPrinter csvPrinter = new CSVPrinter(bw, CSVFormat.DEFAULT);
 
-            for (int qmin = args.qmin; qmin < args.qmax; qmin++) {
-                for (int qmax = qmin + 1; qmax <= args.qmax; qmax++) {
+            for (int qmin = args.qmin; qmin < args.qmax; qmin += args.qminstep) {
+                for (int qmax = qmin + 1; qmax <= args.qmax; qmax += args.qmaxstep) {
                     for (int threshold = args.minT; threshold < args.maxT; threshold += (int)((args.maxT - args.minT)/3.0)) {
                         csvPrinter.print(args.inFile.getName());
                         csvPrinter.print(qmin);
