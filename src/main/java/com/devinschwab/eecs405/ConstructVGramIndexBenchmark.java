@@ -137,7 +137,11 @@ public class ConstructVGramIndexBenchmark {
             for (int qmin = args.qmin; qmin < args.qmax; qmin++) {
                 for (int qmax = qmin + 1; qmax <= args.qmax; qmax++) {
                     for (int threshold = args.minT; threshold < args.maxT; threshold += (int)((args.maxT - args.minT)/3.0)) {
-                        csvPrinter.printRecord(args.inFile.getName(), qmin, qmax, args.k, threshold);
+                        csvPrinter.print(args.inFile.getName());
+                        csvPrinter.print(qmin);
+                        csvPrinter.print(qmax);
+                        csvPrinter.print(args.k);
+                        csvPrinter.print(threshold);
 
                         SimpleStopwatch stopwatch = new SimpleStopwatch();
                         System.out.println(String.format("Constructing vgram index for %s, qmin: %d, qmax: %d, k: %d, threshold: %d", args.inFile.toString(), qmin, qmax, args.k, threshold));
@@ -147,9 +151,9 @@ public class ConstructVGramIndexBenchmark {
                         System.out.println("Total time to construct: " + stopwatch.toString());
 
                         for (Duration duration : durations) {
-                            csvPrinter.print(duration.getSeconds());
+                            csvPrinter.print(duration.getNano());
                         }
-                        csvPrinter.print(stopwatch.getDuration().getSeconds());
+                        csvPrinter.print(stopwatch.getDuration().getNano());
                         csvPrinter.println();
                     }
                 }

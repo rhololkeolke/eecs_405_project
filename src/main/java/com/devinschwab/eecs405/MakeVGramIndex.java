@@ -118,6 +118,7 @@ public class MakeVGramIndex {
         int numAdded = 0;
         for (CSVRecord csvRecord : parser) {
             vGramIndex.gramDict.addStringToFrequencyTrie(csvRecord.get(0));
+            numAdded++;
         }
         stopwatch.stop();
         System.out.println(String.format("Added %d strings to Trie in %s", numAdded, stopwatch.toString()));
