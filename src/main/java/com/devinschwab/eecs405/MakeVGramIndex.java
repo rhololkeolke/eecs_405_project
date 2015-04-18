@@ -153,6 +153,8 @@ public class MakeVGramIndex {
         System.out.println("Computing the VGRAMS");
         stopwatch.start();
 
+        int numFinished = 0;
+        int lastPercentage = 0;
         try {
             parser = CSVParser.parse(inFile, Charset.forName("UTF-8"), CSVFormat.DEFAULT);
             for (CSVRecord csvRecord : parser) {
@@ -173,6 +175,13 @@ public class MakeVGramIndex {
                         vGramIndex.invertedList.put(qgram.gram, invertedList);
                     }
                     invertedList.add(index);
+                }
+
+                numFinished++;
+                int percentDone = (int)(100.0*(double)numFinished/(double)numAdded);
+                if (percentDone > lastPercentage) {
+                    System.out.println("Finished: " + percentDone + "%");
+                    lastPercentage = percentDone;
                 }
             }
         } catch (IOException e) {
