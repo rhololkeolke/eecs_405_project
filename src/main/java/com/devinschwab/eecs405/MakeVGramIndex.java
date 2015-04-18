@@ -195,15 +195,13 @@ public class MakeVGramIndex {
         System.out.println("Saving serialized index to disk");
         stopwatch.start();
 
-        File indexFile = new File(outDir, String.format("%s_%d_%d_%d_%d_vgram.index", inFile.getName(), qmin, qmax, k, threshold));
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFile, false))) {
-            out.writeObject(vGramIndex);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String datasetName = inFile.getName();
+        datasetName = datasetName.substring(0, datasetName.lastIndexOf('.'));
+        File indexDir = new File(outDir, String.format("%s_%d_%d_%d_%d_vgram", datasetName, qmin, qmax, k, threshold));
+        vGramIndex.saveToDisk(indexDir);
 
         stopwatch.stop();
-        System.out.println("Finished writing index to " + indexFile.toString() + " in " + stopwatch.toString());
+        System.out.println("Finished writing index to " + indexDir.toString() + " in " + stopwatch.toString());
         durations.add(stopwatch.getDuration());
 
         return durations;
