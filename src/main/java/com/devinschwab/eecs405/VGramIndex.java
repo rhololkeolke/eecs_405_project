@@ -1,7 +1,9 @@
 package com.devinschwab.eecs405;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
 import java.io.*;
 import java.nio.Buffer;
@@ -28,6 +30,69 @@ public class VGramIndex implements Serializable {
 
         gramDict = new GramDictionary(qmin, qmax);
         nagVectorGenerator = new NagVectorGenerator(gramDict);
+    }
+
+    public static VGramIndex loadFromDisk(File inputDir) {
+        if (!inputDir.isDirectory()) {
+            throw new IllegalArgumentException(inputDir.toString() + " is not a valid vgram index directory");
+        }
+
+        File gramDictFile = new File(inputDir, "gram_dict.index");
+
+        VGramIndex vgramIndex = null;
+        try (ObjectInputStream gramDictIn = new ObjectInputStream(new FileInputStream(gramDictFile))) {
+            GramDictionary gramDict = (GramDictionary)gramDictIn.readObject();
+            vgramIndex = new VGramIndex(gramDict.getQMin(), gramDict.getQMax());
+            vgramIndex.gramDict = gramDict;
+            vgramIndex.nagVectorGenerator = new NagVectorGenerator(vgramIndex.gramDict);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        File vgramFile = new File(inputDir, "vgram.index");
+        try (BufferedReader vgramReader = new BufferedReader(new FileReader(vgramFile))) {
+            CSVParser vgramParser = new CSVParser(vgramReader, CSVFormat.DEFAULT);
+            int stringId = 0;
+            for (CSVRecord record : vgramParser) {
+                vgramIndex.numVGrams.put(stringId, Integer.parseInt(record.get(0)));
+
+                List<Integer> nagVector = new ArrayList<>();
+                for (int i = 1; i < record.size(); i++) {
+                    nagVector.add(Integer.parseInt(record.get(i)));
+                }
+                vgramIndex.nagList.put(stringId, nagVector);
+
+                stringId++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        File invertedListFile = new File(inputDir, "inverted_lists.index");
+        try (BufferedReader invertedListReader = new BufferedReader(new FileReader(invertedListFile))) {
+
+            CSVParser invertedListParser = new CSVParser(invertedListReader, CSVFormat.DEFAULT);
+            for (CSVRecord record : invertedListParser) {
+                String gram = record.get(0);
+                List<Integer> invertedList = new ArrayList<>(record.size()-1);
+                for (int i = 1; i < record.size(); i++) {
+                    invertedList.add(Integer.parseInt(record.get(i)));
+                }
+
+                vgramIndex.invertedList.put(gram, invertedList);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return vgramIndex;
     }
 
     public void saveToDisk(File outputDir) {
