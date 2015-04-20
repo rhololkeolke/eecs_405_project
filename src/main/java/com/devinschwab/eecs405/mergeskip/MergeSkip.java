@@ -81,6 +81,12 @@ public class MergeSkip {
             return new ArrayList<>(candidateSet);
         }
 
+        return mergeLists(ridLists, T);
+    }
+
+    public List<Integer> mergeLists(List<List<Integer>> ridLists, int T) {
+
+
         // the actual algorithm
         List<Integer> R = new LinkedList<>();
 
@@ -133,6 +139,9 @@ public class MergeSkip {
                         List<Integer> ridList = ridLists.get(item.listId);
                         if (!ridList.isEmpty()) {
                             int index = Collections.binarySearch(ridList, topID.stringId);
+                            if (index < 0) {
+                                index = -(index + 1);
+                            }
                             for (int i = 0; i < index; i++) {
                                 ridList.remove(0);
                             }

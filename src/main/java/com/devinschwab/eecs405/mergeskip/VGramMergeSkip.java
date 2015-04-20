@@ -73,7 +73,7 @@ public class VGramMergeSkip {
 
         List<Integer> nagVector = vGramIndex.nagVectorGenerator.generate(s, k);
 
-        int Tq = Math.min(qgrams.size(), qgrams.size() - nagVector.get(k-1));
+        int Tq = Math.min(qgrams.size(), qgrams.size() - nagVector.get(k - 1));
         if (Tq <= 0) {
             // when negative every id in the list is a candidate
             System.out.println("T <= 0. Returning all candidates");
@@ -83,6 +83,10 @@ public class VGramMergeSkip {
             }
             return new ArrayList<>(candidateSet);
         }
+        return mergeLists(ridLists, k, Tq);
+    }
+
+    public List<Integer> mergeLists(List<List<Integer>> ridLists, int k, int Tq) {
 
         // the actual algorithm
         List<Integer> R = new LinkedList<>();
@@ -140,6 +144,9 @@ public class VGramMergeSkip {
                         List<Integer> ridList = ridLists.get(item.listId);
                         if (!ridList.isEmpty()) {
                             int index = Collections.binarySearch(ridList, topID.stringId);
+                            if (index < 0) {
+                                index = -(index + 1);
+                            }
                             for (int i = 0; i < index; i++) {
                                 ridList.remove(0);
                             }
