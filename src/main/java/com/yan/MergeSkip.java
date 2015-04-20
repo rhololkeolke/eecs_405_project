@@ -26,7 +26,7 @@ public class MergeSkip {
         listNum -= 1;
 
         while (heap.size() >= T) {
-            System.out.println("new step");
+            //System.out.println("new step");
             Integer t = heap.get(0);//t is the top the heap
             //pop from heap those records equals t
             Integer n = 1;//count the occurrence of t
@@ -73,10 +73,10 @@ public class MergeSkip {
                 }
                 heap = heappop(heap, m);
                 //jump
-                System.out.println("jump");
+                //System.out.println("jump");
                 for (int i = 0; i <= listNum; i++) {
                     Integer pointer = lists.get(i).get(0);
-                    System.out.println("pointer=" + pointer);
+                    //System.out.println("pointer=" + pointer);
                     if (pointer <= lists.get(i).size() - 1) {
                         if (lists.get(i).get(pointer) <= t2) {
                             while (lists.get(i).get(pointer) < t2) {
@@ -102,22 +102,22 @@ public class MergeSkip {
 
     //heap functions
     public ArrayList<Integer> heappop(ArrayList<Integer> heap, int num) {
-        System.out.println("pop " + num);
+        //System.out.println("pop " + num);
         for (int i = 1; i <= num; i++) {
             heap.remove(0);
         }
         int j = 0;
-        System.out.print("heap after pop: ");
+        //System.out.print("heap after pop: ");
         while (j < heap.size()) {
-            System.out.print(heap.get(j) + " ");
+            //System.out.print(heap.get(j) + " ");
             j = j + 1;
         }
-        System.out.println();
+        //System.out.println();
         return heap;
     }
 
     public ArrayList<Integer> heappush(ArrayList<Integer> heap, Integer value) {
-        System.out.println("push " + value);
+        //System.out.println("push " + value);
         int i = heap.size();
         if (i > 0) {
             while (value < heap.get(i - 1)) {
@@ -130,12 +130,12 @@ public class MergeSkip {
         heap.add(i, value);
 
         int j = 0;
-        System.out.print("heap after push: ");
+        //System.out.print("heap after push: ");
         while (j < heap.size()) {
-            System.out.print(heap.get(j) + " ");
+            //System.out.print(heap.get(j) + " ");
             j = j + 1;
         }
-        System.out.println();
+        //System.out.println();
         return heap;
     }
 

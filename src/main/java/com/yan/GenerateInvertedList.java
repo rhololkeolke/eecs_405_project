@@ -76,6 +76,30 @@ public class GenerateInvertedList {
         return durations;
     }
 
+    public static Map<String, List<Integer>> loadFromFile(File listsFile) {
+        Map<String, List<Integer>> invertedLists = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(listsFile))) {
+
+            CSVParser parser = new CSVParser(br, CSVFormat.DEFAULT);
+
+            for (CSVRecord record : parser) {
+                String key = record.get(0);
+                List<Integer> invertedList = new ArrayList<>(record.size()-1);
+                for (int i = 1 ; i < record.size(); i++) {
+                    invertedList.add(Integer.parseInt(record.get(i)));
+                }
+                invertedLists.put(key, invertedList);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return invertedLists;
+    }
+
     public static List<QGram> generateQGrams(String s, int q) {
         List<QGram> qgrams = new LinkedList<>();
         for (int i = 0; i <= s.length() - q; i++) {
