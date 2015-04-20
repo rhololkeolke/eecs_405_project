@@ -205,6 +205,7 @@ public class BenchmarkStaticMergeSkip {
                             stopwatch.stop();
                             System.out.println(String.format("Found %d similar strings in %s",
                                     similarStrings.size(), stopwatch.toString()));
+                            similarStrings.forEach(System.out::println);
                             csvPrinter.print(similarStrings.size());
                             csvPrinter.print(stopwatch.getDuration().getNano());
 
