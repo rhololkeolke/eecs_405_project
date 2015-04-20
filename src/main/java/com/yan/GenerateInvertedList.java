@@ -1,83 +1,109 @@
 package com.yan;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import com.devinschwab.eecs405.QGram;
+import com.devinschwab.eecs405.util.SimpleStopwatch;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+
+import java.io.*;
+import java.time.Duration;
+import java.util.*;
 
 
 public class GenerateInvertedList {
-    public static int q = 3;
 
-    //public static void main(String[] args) throws IOException {
-    public Hashtable<String, ArrayList<Integer>> generateInvertedList() throws IOException {
-        Hashtable<String, ArrayList<Integer>> pairs = new Hashtable<>();
+    public static List<Duration> generateInvertedList(File dataFile, File indexDir, int q) {
 
+        List<Duration> durations = new LinkedList<>();
 
-        BufferedReader br = new BufferedReader(new FileReader("D:\\OneDrive\\Workspace\\EECS405\\data\\actorsList.txt"));
-        try {
+        SimpleStopwatch stopwatch = new SimpleStopwatch();
+        System.out.println("Constructing inverted lists");
+        stopwatch.start();
 
-            String line = br.readLine();
-            String[] record = null;
-            int id;
-            String[] qGram;
+        Map<String, List<Integer>> invertedLists = new HashMap<>();
 
-            while (line != null) {
-                System.out.println(line);
+        try (BufferedReader br = new BufferedReader(new FileReader(dataFile))) {
 
-                //do with it
-                record = line.split(":");
-                id = Integer.parseInt(record[0]);
-                qGram = new String[500];
-                for (int i = 1; i <= record[1].length() - q + 1; i++) {
-                    qGram[i] = record[1].substring(i - 1, i - 1 + q);
-                }
-                for (int i = 1; i <= record[1].length() - q + 1; i++) {
-                    if (pairs.containsKey(qGram[i])) {
-                        pairs.get(qGram[i]).add(id);
-                    } else {
-                        ArrayList<Integer> list = new ArrayList<Integer>();
-                        list.add(id);
-                        pairs.put(qGram[i], list);
+            CSVParser parser = new CSVParser(br, CSVFormat.DEFAULT);
 
-                    }
-                }
+            int stringId = 0;
+            for (CSVRecord record : parser) {
 
-                line = br.readLine();
+                String s = record.get(0);
+
+                addStringToInvertedList(stringId, s, q, invertedLists);
+
+                stringId++;
             }
 
-        } finally {
-            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        /*write
-	    PrintWriter printWriter = new PrintWriter(new File("D:\\OneDrive\\Workspace\\EECS405\\data\\invertedLists.txt"));
+        stopwatch.stop();
+        System.out.println("Constructed inverted lists in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
+        stopwatch.reset();
 
-	    Iterator<String> iterator = pairs.keySet().iterator();
-	    while (iterator.hasNext()) {
-	    	
-	    	String key = (String) iterator.next();
-	    	
-	    	ArrayList<Integer> arrayList = pairs.get(key);
+        System.out.println("Saving lists to file");
+        stopwatch.start();
 
-	    	String string = "";
-	    	for (int i = 0; i < arrayList.size() - 1; i++) {
-	    		string += arrayList.get(i) + ",";
-	    	}
-	    	
-	    	string += arrayList.get(arrayList.size() - 1);
-	    	System.out.println(key);
-	    	printWriter.println(key + ":" + string);
-	    	
-	    }
-	    
-	    printWriter.flush();
-	    printWriter.close();
-	    
-	    */
+        String datasetName = dataFile.getName();
+        datasetName = datasetName.substring(0, datasetName.lastIndexOf('.'));
 
+        File invertedListFile = new File(indexDir, String.format("%s_%d_inverted_lists.index", datasetName, q));
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(invertedListFile))) {
 
-        System.out.print(0);
-        return pairs;
+            CSVPrinter printer = new CSVPrinter(bw, CSVFormat.DEFAULT);
+
+            for (Map.Entry<String, List<Integer>> entry : invertedLists.entrySet()) {
+                printer.print(entry.getKey());
+                for (Integer id : entry.getValue()) {
+                    printer.print(id);
+                }
+                printer.println();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        stopwatch.stop();
+        System.out.println(String.format("Saved to %s in %s", invertedListFile.getName(), stopwatch.toString()));
+        durations.add(stopwatch.getDuration());
+
+        return durations;
+    }
+
+    public static List<QGram> generateQGrams(String s, int q) {
+        List<QGram> qgrams = new LinkedList<>();
+        for (int i = 0; i <= s.length() - q; i++) {
+            qgrams.add(new QGram(i, s.substring(i, i + q)));
+        }
+        return qgrams;
+    }
+
+    public static void addStringToInvertedList(int id, String s, int q, Map<String, List<Integer>> invertedLists) {
+        List<QGram> qgrams = generateQGrams(s, q);
+
+        for (QGram qgram : qgrams) {
+            List<Integer> invertedList = invertedLists.get(qgram.gram);
+            if (invertedList == null) {
+                invertedList = new LinkedList<>();
+                invertedLists.put(qgram.gram, invertedList);
+            }
+            invertedList.add(id);
+        }
+    }
+
+    public static Map<String, List<Integer>> generateInvertedList(Map<Integer, String> strings, int q) {
+        Map<String, List<Integer>> invertedLists = new HashMap<>();
+
+        for (Map.Entry<Integer, String> stringEntry : strings.entrySet()) {
+            addStringToInvertedList(stringEntry.getKey(), stringEntry.getValue(), q, invertedLists);
+        }
+
+        return invertedLists;
     }
 }
