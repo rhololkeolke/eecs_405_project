@@ -5,7 +5,7 @@ import com.devinschwab.eecs405.VGramIndex;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestDivideSkp {
+public class TestStaticDivideSkp {
 
     public ArrayList<Integer> runQGram(String query, Integer T, Integer q, Integer L) {
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TestVGram {
+public class TestVGramMergeSkip {
 
     //call this func to run MergeSkip with vGram
     //output is a list of candidates' id
