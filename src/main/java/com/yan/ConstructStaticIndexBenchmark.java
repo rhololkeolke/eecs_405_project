@@ -116,7 +116,7 @@ public class ConstructStaticIndexBenchmark {
                 SimpleStopwatch stopwatch = new SimpleStopwatch();
                 System.out.println(String.format("Constructing inverted lists for %s, q: %d", datasetName, q));
                 stopwatch.start();
-                List<Duration> durations = GenerateInvertedList.generateInvertedList(args.inFile, args.indexDir, q);
+                List<Duration> durations = GenerateInvertedList.generateAndSaveInvertedLists(args.inFile, args.indexDir, q);
                 stopwatch.stop();
                 System.out.println("Total time to construct: " + stopwatch.toString());
 

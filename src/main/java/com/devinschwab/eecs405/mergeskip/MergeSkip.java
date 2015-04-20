@@ -47,12 +47,7 @@ public class MergeSkip {
 
         @Override
         public int compareTo(HeapItem o) {
-            if (this.stringId > o.stringId) {
-                return 1;
-            } else if (this.stringId == o.stringId) {
-                return 0;
-            }
-            return -1;
+            return this.stringId - o.stringId;
         }
     }
 
@@ -90,7 +85,8 @@ public class MergeSkip {
         List<Integer> R = new LinkedList<>();
 
         // add fronteirs to heap
-        PriorityQueue<HeapItem> frontierHeap = new PriorityQueue<>();
+        PriorityQueue<HeapItem> frontierHeap = new PriorityQueue<>(ridLists.size(), HeapItem::compareTo);
+
         for (int i = 0; i < ridLists.size(); i++) {
             List<Integer> ridList = ridLists.get(i);
             if (!ridList.isEmpty()) {
@@ -120,7 +116,7 @@ public class MergeSkip {
             } else { // otherwise pop T - 1 - n smallest records from H
 
                 int remainingToPop = T - 1 - poppedItems.size();
-                for (int i = 0; i < remainingToPop; i++) {
+                for (int i = 0; i < remainingToPop - 1; i++) {
                     if (frontierHeap.isEmpty()) {
                         break;
                     }

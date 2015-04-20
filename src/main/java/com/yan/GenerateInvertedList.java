@@ -14,14 +14,34 @@ import java.util.*;
 
 public class GenerateInvertedList {
 
-    public static List<Duration> generateInvertedList(File dataFile, File indexDir, int q) {
-
+    public static List<Duration> generateAndSaveInvertedLists(File dataFile, File indexDir, int q) {
         List<Duration> durations = new LinkedList<>();
 
         SimpleStopwatch stopwatch = new SimpleStopwatch();
         System.out.println("Constructing inverted lists");
         stopwatch.start();
 
+        Map<String, List<Integer>> invertedLists = generateInvertedLists(dataFile, q);
+        stopwatch.stop();
+        System.out.println("Constructed inverted lists in " + stopwatch.toString());
+        durations.add(stopwatch.getDuration());
+        stopwatch.reset();
+
+        System.out.println("Saving lists to file");
+        stopwatch.start();
+        String datasetName = dataFile.getName();
+        datasetName = datasetName.substring(0, datasetName.lastIndexOf('.'));
+
+        File invertedListFile = new File(indexDir, String.format("%s_%d_inverted_lists.index", datasetName, q));
+        saveToFile(invertedListFile, invertedLists);
+        stopwatch.stop();
+        System.out.println(String.format("Saved to %s in %s", invertedListFile.getName(), stopwatch.toString()));
+        durations.add(stopwatch.getDuration());
+
+        return durations;
+    }
+
+    public static Map<String, List<Integer>> generateInvertedLists(File dataFile, int q) {
         Map<String, List<Integer>> invertedLists = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(dataFile))) {
@@ -42,19 +62,12 @@ public class GenerateInvertedList {
             e.printStackTrace();
             return null;
         }
-        stopwatch.stop();
-        System.out.println("Constructed inverted lists in " + stopwatch.toString());
-        durations.add(stopwatch.getDuration());
-        stopwatch.reset();
 
-        System.out.println("Saving lists to file");
-        stopwatch.start();
+        return invertedLists;
+    }
 
-        String datasetName = dataFile.getName();
-        datasetName = datasetName.substring(0, datasetName.lastIndexOf('.'));
-
-        File invertedListFile = new File(indexDir, String.format("%s_%d_inverted_lists.index", datasetName, q));
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(invertedListFile))) {
+    public static void saveToFile(File output, Map<String, List<Integer>> invertedLists) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(output))) {
 
             CSVPrinter printer = new CSVPrinter(bw, CSVFormat.DEFAULT);
 
@@ -69,11 +82,6 @@ public class GenerateInvertedList {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        stopwatch.stop();
-        System.out.println(String.format("Saved to %s in %s", invertedListFile.getName(), stopwatch.toString()));
-        durations.add(stopwatch.getDuration());
-
-        return durations;
     }
 
     public static Map<String, List<Integer>> loadFromFile(File listsFile) {

@@ -5,6 +5,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.devinschwab.eecs405.EditDistance;
+import com.devinschwab.eecs405.mergeskip.MergeSkip;
 import com.devinschwab.eecs405.util.FileArgConverter;
 import com.devinschwab.eecs405.util.SimpleStopwatch;
 import com.yan.GenerateInvertedList;
@@ -144,6 +145,8 @@ public class BenchmarkStaticMergeSkip {
                 Map<String, List<Integer>> invertedLists = GenerateInvertedList.loadFromFile(indexFile);
                 System.out.println("Finished loading");
 
+                MergeSkip mergeSkip = new MergeSkip(invertedLists);
+
                 for (int k = args.kmin; k < args.kmax; k++) {
 
                     CharsetDecoder latin1Decoder= Charset.forName("latin1").newDecoder();
@@ -167,7 +170,7 @@ public class BenchmarkStaticMergeSkip {
                             stopwatch.reset();
                             System.out.println("Finding candidates with mergeskip");
                             stopwatch.start();
-                            List<Integer> candidates = TestStaticMergeSkip.runQGram(invertedLists, queryString, 0, q);
+                            List<Integer> candidates = mergeSkip.mergeLists(queryString, q, k);
                             stopwatch.stop();
                             System.out.println(String.format("Found %d candidates in %s",
                                     candidates.size(), stopwatch.toString()));
@@ -205,6 +208,7 @@ public class BenchmarkStaticMergeSkip {
                             csvPrinter.print(similarStrings.size());
                             csvPrinter.print(stopwatch.getDuration().getNano());
 
+                            csvPrinter.println();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
