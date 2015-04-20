@@ -1,31 +1,29 @@
 package com.yan;
 
+import com.devinschwab.eecs405.QGram;
 import com.devinschwab.eecs405.VGramIndex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TestStaticMergeSkip {
 
-    public ArrayList<Integer> runQGram(String query, Integer T, int q) {
+    public static List<Integer> runQGram(Map<String, List<Integer>> invertedLists, String query, Integer T, int q) {
         Integer temp;
-        ArrayList<List<Integer>> lists = new ArrayList<List<Integer>>();
-        ArrayList<Integer> R = new ArrayList<Integer>();
-        VGramIndex v = new VGramIndex(q, q);
-        ArrayList<String> qGram = new ArrayList<String>();
-        for (int i = 1; i <= query.length() - q + 1; i++) {
-            qGram.add(query.substring(i - 1, i - 1 + q));
-        }
+        List<List<Integer>> lists = new ArrayList<>();
+        List<Integer> R;
+        List<QGram> qGram = GenerateInvertedList.generateQGrams(query, q);
 
         //scan hashtable and put into lists
         for (int i = 0; i <= query.length() - q; i++) {
-            temp = v.invertedList.get(qGram.get(i)).size();
-            lists.add(v.invertedList.get(qGram.get(i)));
+            temp = invertedLists.get(qGram.get(i).gram).size();
+            lists.add(new ArrayList<>(invertedLists.get(qGram.get(i).gram)));
             lists.get(i).add(0, temp);
         }
 
         MergeSkip a = new MergeSkip();
-        R = a.mergeSkip(lists, T.intValue());
+        R = a.mergeSkip(lists, T);
 
         //printout output
         System.out.print("output R:");

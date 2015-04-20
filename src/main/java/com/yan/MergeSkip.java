@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MergeSkip {
-    ArrayList<Integer> heap = new ArrayList<Integer>();    //build heap
-    ArrayList<Integer> R = new ArrayList<Integer>();//initialize output list
+    ArrayList<Integer> heap = new ArrayList<>();    //build heap
+    ArrayList<Integer> R = new ArrayList<>();//initialize output list
     public int listNum = 0;
-    ArrayList<Integer> Rt = new ArrayList<Integer>();
+    ArrayList<Integer> Rt = new ArrayList<>();
 
-    public ArrayList<Integer> mergeSkip(ArrayList<List<Integer>> lists, Integer T) {
+    public ArrayList<Integer> mergeSkip(List<List<Integer>> lists, Integer T) {
 
         //push first element of each list to heap
         Integer temp;
@@ -25,40 +25,40 @@ public class MergeSkip {
         }
         listNum -= 1;
 
-        while (heap.size() >= T.intValue()) {
+        while (heap.size() >= T) {
             System.out.println("new step");
             Integer t = heap.get(0);//t is the top the heap
             //pop from heap those records equals t
             Integer n = 1;//count the occurrence of t
 
             while (heap.get(n).intValue() == t.intValue()) {
-                n = n.intValue() + 1;
+                n = n + 1;
                 if (n >= heap.size() - 1) {
                     break;
                 }
             }
             heap = heappop(heap, n);
 
-            if (n.intValue() >= T.intValue()) {
+            if (n >= T) {
                 R.add(t);
                 Rt.add(n);
                 //push next record of popped list
                 for (int i = 0; i <= listNum; i++) {
-                    if (lists.get(i).get(0).intValue() < lists.get(i).size()) {
-                        if (lists.get(i).get(lists.get(i).get(0).intValue()).intValue() == t.intValue()) {
-                            temp = lists.get(i).get(0).intValue() + 1;
+                    if (lists.get(i).get(0) < lists.get(i).size()) {
+                        if (lists.get(i).get(lists.get(i).get(0)).intValue() == t.intValue()) {
+                            temp = lists.get(i).get(0) + 1;
                             lists.get(i).add(0, temp);
                             lists.get(i).remove(1);
 
-                            if (lists.get(i).get(0).intValue() < lists.get(i).size()) {
-                                Integer value = lists.get(i).get(lists.get(i).get(0).intValue());
+                            if (lists.get(i).get(0) < lists.get(i).size()) {
+                                Integer value = lists.get(i).get(lists.get(i).get(0));
                                 heap = heappush(heap, value);
                             }
                         }
                     }
                 }
             } else {
-                heap = heappop(heap, T.intValue() - 1 - n.intValue());
+                heap = heappop(heap, T - 1 - n);
                 Integer t2 = heap.get(0);//t2 is the current top
                 Integer m = 0;//count the occurrence of t
 
@@ -66,30 +66,30 @@ public class MergeSkip {
                     break;
                 }
                 while (heap.get(m).intValue() == t2.intValue()) {
-                    m = m.intValue() + 1;
-                    if (m.intValue() >= heap.size() - 1) {
+                    m = m + 1;
+                    if (m >= heap.size() - 1) {
                         break;
                     }
                 }
-                heap = heappop(heap, m.intValue());
+                heap = heappop(heap, m);
                 //jump
                 System.out.println("jump");
                 for (int i = 0; i <= listNum; i++) {
                     Integer pointer = lists.get(i).get(0);
                     System.out.println("pointer=" + pointer);
-                    if (pointer.intValue() <= lists.get(i).size() - 1) {
-                        if (lists.get(i).get(pointer.intValue()).intValue() <= t2.intValue()) {
-                            while (lists.get(i).get(pointer.intValue()).intValue() < t2.intValue()) {
-                                pointer = pointer.intValue() + 1;
-                                if (pointer.intValue() > lists.get(i).size() - 1) {
+                    if (pointer <= lists.get(i).size() - 1) {
+                        if (lists.get(i).get(pointer) <= t2) {
+                            while (lists.get(i).get(pointer) < t2) {
+                                pointer = pointer + 1;
+                                if (pointer > lists.get(i).size() - 1) {
                                     break;
                                 }
                                 lists.get(i).add(0, pointer);
                                 lists.get(i).remove(1);
                             }
                             if (pointer <= lists.get(i).size() - 1) {
-                                if (lists.get(i).get(pointer.intValue()).intValue() >= t2.intValue())
-                                    heap = heappush(heap, lists.get(i).get(pointer.intValue()));
+                                if (lists.get(i).get(pointer) >= t2)
+                                    heap = heappush(heap, lists.get(i).get(pointer));
                             }
                         }
                     }
@@ -120,7 +120,7 @@ public class MergeSkip {
         System.out.println("push " + value);
         int i = heap.size();
         if (i > 0) {
-            while (value.intValue() < heap.get(i - 1).intValue()) {
+            while (value < heap.get(i - 1)) {
                 i = i - 1;
                 if (i == 0) {
                     break;
