@@ -1,16 +1,17 @@
 package com.devinschwab.eecs405.mergeskip;
 
 import com.devinschwab.eecs405.QGram;
+import com.devinschwab.eecs405.VGramIndex;
 import com.yan.GenerateInvertedList;
 
 import java.util.*;
 
 /**
- * Created by Devin on 4/19/15.
+ * Created by Devin on 4/20/15.
  */
-public class MergeSkip {
+public class VGramMergeSkip {
 
-    public Map<String, List<Integer>> invertedLists;
+    public VGramIndex vGramIndex;
 
     public class HeapItem implements Comparable<HeapItem> {
         public int listId;
@@ -51,18 +52,18 @@ public class MergeSkip {
         }
     }
 
-    public MergeSkip(Map<String, List<Integer>> invertedLists) {
-        this.invertedLists = invertedLists;
+    public VGramMergeSkip(VGramIndex vGramIndex) {
+        this.vGramIndex = vGramIndex;
     }
 
-    public List<Integer> mergeLists(String s, int q, int k) {
-        List<QGram> qgrams = GenerateInvertedList.generateQGrams(s, q);
+    public List<Integer> mergeLists(String s, int k) {
+        List<QGram> qgrams = vGramIndex.gramDict.generateVGrams(s);
 
         // copy the relevant lists
         List<List<Integer>> ridLists = new ArrayList<>(qgrams.size());
 
         for (QGram qgram : qgrams) {
-            List<Integer> invertedList = invertedLists.get(qgram.gram);
+            List<Integer> invertedList = vGramIndex.invertedList.get(qgram.gram);
             if (invertedList != null) {
                 List<Integer> ridList = new ArrayList<>(invertedList);
                 Collections.sort(ridList);
@@ -70,8 +71,10 @@ public class MergeSkip {
             }
         }
 
-        int T = Math.min(qgrams.size(), s.length() + q - 1 - k*q);
-        if (T <= 0) {
+        List<Integer> nagVector = vGramIndex.nagVectorGenerator.generate(s, k);
+
+        int Tq = Math.min(qgrams.size(), qgrams.size() - nagVector.get(k-1));
+        if (Tq <= 0) {
             // when negative every id in the list is a candidate
             System.out.println("T <= 0. Returning all candidates");
             Set<Integer> candidateSet = new HashSet<>();
@@ -101,6 +104,10 @@ public class MergeSkip {
             while (!frontierHeap.isEmpty() && topID.stringId == frontierHeap.peek().stringId) {
                 poppedItems.add(frontierHeap.poll());
             }
+
+            int numVGrams = vGramIndex.numVGrams.get(topID.stringId);
+            int nag = vGramIndex.nagList.get(topID.stringId).get(k-1);
+            int T = Math.max(Tq, numVGrams - nag);
 
             // if last ID made it into R then
             // for each popped list add the next element to the frontier
