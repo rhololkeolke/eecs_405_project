@@ -130,6 +130,8 @@ public class BenchmarkVGramDivideSkip {
 
             CSVPrinter csvPrinter = new CSVPrinter(bw, CSVFormat.DEFAULT);
 
+            Collections.sort(staticIndexFiles); // just convenience
+
             for (File indexFile : staticIndexFiles) {
 
                 Matcher indexMatcher = indexPattern.matcher(indexFile.getName());
